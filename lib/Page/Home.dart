@@ -1,16 +1,21 @@
 import 'dart:io';
+import 'package:audioplayers/audio_cache.dart';
+import 'package:autostart/autostart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
 import 'package:socialnetworking/Page/ActivityFeed.dart';
 import 'package:socialnetworking/Page/CreateUserAccount.dart';
 import 'package:socialnetworking/Page/Profile.dart';
 import 'package:socialnetworking/Page/Timeline.dart';
 import 'package:socialnetworking/Page/Upload.dart';
+import 'package:socialnetworking/Widgets/colors.dart';
 
 import 'Search.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -20,14 +25,13 @@ class Home extends StatefulWidget {
   _HomeState createState() => _HomeState();
 }
 
-
 final GoogleSignIn googleSignIn = GoogleSignIn();
 final usersRef = Firestore.instance.collection('users');
 final storageRef = FirebaseStorage.instance.ref();
 final postRef = Firestore.instance.collection('posts');
 UserModel currentUser;
 
-class _HomeState extends State<Home>{
+class _HomeState extends State<Home> {
   bool isAuth = false;
   PageController pageController;
   int pageIndex = 0;
@@ -36,11 +40,13 @@ class _HomeState extends State<Home>{
   FirebaseMessaging firebaseMessaging = FirebaseMessaging();
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+  SharedPreferences sharedPreferences;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    getAutoStartPermissions();
     pageController = PageController();
     googleSignIn.onCurrentUserChanged.listen((account) {
       handleSignIn(account);
@@ -53,11 +59,44 @@ class _HomeState extends State<Home>{
     var android = new AndroidInitializationSettings('mipmap/ic_launcher');
     var ios = new IOSInitializationSettings();
     var initSettings = new InitializationSettings(android, ios);
-    flutterLocalNotificationsPlugin.initialize(initSettings,onSelectNotification: onSelectNotification);
+    flutterLocalNotificationsPlugin.initialize(initSettings,
+        onSelectNotification: onSelectNotification);
   }
 
-  Future<dynamic> onSelectNotification(String payload){
-      print("payload $payload");
+  void getAutoStartPermissions() async {
+    sharedPreferences = await SharedPreferences.getInstance();
+    bool isAutoStartGiven = await sharedPreferences.getBool('isAutoStartGiven');
+    if (isAutoStartGiven == null || isAutoStartGiven == false) {
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          child: AlertDialog(
+            title: Text("Enable Autostart"),
+            content:
+                Text("This app will work properly if you allow autostart."),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("Cancel"),
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+              ),
+              FlatButton(
+                child: Text("Okay"),
+                onPressed: () async{
+                  Navigator.of(context).pop();
+                  Autostart.getAutoStartPermission();
+                  await sharedPreferences.setBool('isAutoStartGiven', true);
+                },
+              ),
+            ],
+          ));
+      
+    }
+  }
+
+  Future<dynamic> onSelectNotification(String payload) {
+    print("payload $payload");
   }
 
   @override
@@ -74,6 +113,7 @@ class _HomeState extends State<Home>{
 
   Widget AuthenticatedWidget() {
     return Scaffold(
+      backgroundColor: colors.mainBackgroundColor,
       body: PageView(
         children: <Widget>[
           Timeline(
@@ -211,14 +251,11 @@ class _HomeState extends State<Home>{
         "androidNotificationToken": token,
       });
       firebaseMessaging.configure(
-        onLaunch: (Map<String, dynamic> message) async {
-
-        },
-        onResume: (Map<String, dynamic> message) async {
-        },
+        onLaunch: (Map<String, dynamic> message) async {},
+        onResume: (Map<String, dynamic> message) async {},
         onMessage: (Map<String, dynamic> message) async {
-          showNotification(message);
-          print("on message $message");
+          AudioCache audioCache=AudioCache();
+          audioCache.play('sounds/swiftly.mp3',isNotification: true);
         },
       );
     });

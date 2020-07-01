@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:io' as io;
 import 'package:audioplayers/audioplayers.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_time_format/date_time_format.dart';
@@ -48,6 +49,19 @@ class _ChatScreenState extends State<ChatScreen> {
     // TODO: implement initState
     super.initState();
     createChatId();
+    Firestore.instance
+        .collection('unreadChats')
+        .document(widget.currentUser.id)
+        .collection('unreadchats')
+        .document(chatId)
+        .collection(chatId)
+        .getDocuments()
+        .then((value) {
+      value.documents.forEach((element) {
+        element.reference.delete();
+      });
+    });
+    BackButtonInterceptor.add(myInterceptor);
   }
 
   @override
@@ -55,6 +69,16 @@ class _ChatScreenState extends State<ChatScreen> {
     // TODO: implement dispose
     super.dispose();
     await _stopWatchTimer.dispose();
+    BackButtonInterceptor.remove(myInterceptor);
+  }
+
+  bool myInterceptor(bool stopDefaultButtonEvent) {
+    Firestore.instance
+        .collection('chattingWith')
+        .document(widget.currentUser.id)
+        .setData({"id": ""});
+    Navigator.of(context).pop();
+    return true;
   }
 
   @override
@@ -70,6 +94,10 @@ class _ChatScreenState extends State<ChatScreen> {
           onPressed: isRecording
               ? null
               : () {
+                  Firestore.instance
+                      .collection('chattingWith')
+                      .document(widget.currentUser.id)
+                      .setData({"id": ""});
                   Navigator.of(context).pop();
                 },
         ),
@@ -461,7 +489,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void sendMessage() {
+  void sendMessage() async {
     String message = messageController.text;
     messageController.clear();
     if (chatId != null && message.isNotEmpty) {
@@ -478,6 +506,19 @@ class _ChatScreenState extends State<ChatScreen> {
         "message": message,
         "type": "text"
       });
+      DocumentSnapshot docSnapshot = await Firestore.instance
+          .collection('chattingWith')
+          .document(widget.selectedUser.id)
+          .get();
+      if (docSnapshot['id'] != widget.currentUser.id) {
+        Firestore.instance
+            .collection('unreadChats')
+            .document(widget.selectedUser.id)
+            .collection('unreadchats')
+            .document(chatId)
+            .collection(chatId)
+            .add({"message": message, "timestamp": DateTime.now()});
+      }
       Firestore.instance
           .collection('chats')
           .document(widget.currentUser.id)
@@ -489,7 +530,8 @@ class _ChatScreenState extends State<ChatScreen> {
         "displayName": widget.selectedUser.displayName,
         "username": widget.selectedUser.username,
         "photoUrl": widget.selectedUser.photoUrl,
-        "lastMessage": message
+        "lastMessage": "You: " + message,
+        "chatId": chatId
       });
       Firestore.instance
           .collection('chats')
@@ -515,7 +557,8 @@ class _ChatScreenState extends State<ChatScreen> {
         "displayName": widget.currentUser.displayName,
         "username": widget.currentUser.username,
         "photoUrl": widget.currentUser.photoUrl,
-        "lastMessage": message
+        "lastMessage": "${widget.currentUser.displayName}: " + message,
+        "chatId": chatId
       });
     }
   }
@@ -541,6 +584,34 @@ class _ChatScreenState extends State<ChatScreen> {
         "url": "",
         "type": "image"
       });
+      DocumentSnapshot docSnapshot = await Firestore.instance
+          .collection('chattingWith')
+          .document(widget.selectedUser.id)
+          .get();
+      if (docSnapshot['id'] != widget.currentUser.id) {
+        Firestore.instance
+            .collection('unreadChats')
+            .document(widget.selectedUser.id)
+            .collection('unreadchats')
+            .document(chatId)
+            .collection(chatId)
+            .add({"message": "shares a image", "timestamp": DateTime.now()});
+      }
+
+      Firestore.instance
+          .collection('chats')
+          .document(widget.currentUser.id)
+          .collection('userChats')
+          .document(chatId)
+          .setData({
+        "id": widget.selectedUser.id,
+        "bio": widget.selectedUser.bio,
+        "displayName": widget.selectedUser.displayName,
+        "username": widget.selectedUser.username,
+        "photoUrl": widget.selectedUser.photoUrl,
+        "lastMessage": "You: shared a image",
+        "chatId": chatId
+      });
       Firestore.instance
           .collection('chats')
           .document(widget.selectedUser.id)
@@ -554,6 +625,20 @@ class _ChatScreenState extends State<ChatScreen> {
         "timestamp": DateTime.now(),
         "url": "",
         "type": "image"
+      });
+      Firestore.instance
+          .collection('chats')
+          .document(widget.selectedUser.id)
+          .collection('userChats')
+          .document(chatId)
+          .setData({
+        "id": widget.currentUser.id,
+        "bio": widget.currentUser.bio,
+        "displayName": widget.currentUser.displayName,
+        "username": widget.currentUser.username,
+        "photoUrl": widget.currentUser.photoUrl,
+        "lastMessage": "${widget.currentUser.displayName}: shared a image",
+        "chatId": chatId
       });
       setState(() {
         file = file1;
@@ -657,7 +742,80 @@ class _ChatScreenState extends State<ChatScreen> {
               _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
               var results = await recorder.stop();
               String audioId = DateTime.now().millisecondsSinceEpoch.toString();
-              createAudioMessageInFirestore(url: "", id: audioId);
+              Firestore.instance
+                  .collection('chats')
+                  .document(widget.currentUser.id)
+                  .collection('userChats')
+                  .document(chatId)
+                  .collection('chats')
+                  .document(audioId)
+                  .setData({
+                "sender": widget.currentUser.id,
+                "receiver": widget.selectedUser.id,
+                "timestamp": DateTime.now(),
+                "url": "",
+                "type": "audio"
+              });
+              DocumentSnapshot docSnapshot = await Firestore.instance
+                  .collection('chattingWith')
+                  .document(widget.selectedUser.id)
+                  .get();
+              if (docSnapshot['id'] != widget.currentUser.id) {
+                Firestore.instance
+                    .collection('unreadChats')
+                    .document(widget.selectedUser.id)
+                    .collection('unreadchats')
+                    .document(chatId)
+                    .collection(chatId)
+                    .add({
+                  "message": "sent a audio clip.",
+                  "timestamp": DateTime.now()
+                });
+              }
+              Firestore.instance
+                  .collection('chats')
+                  .document(widget.selectedUser.id)
+                  .collection('userChats')
+                  .document(chatId)
+                  .collection('chats')
+                  .document(audioId)
+                  .setData({
+                "sender": widget.currentUser.id,
+                "receiver": widget.selectedUser.id,
+                "timestamp": DateTime.now(),
+                "url": "",
+                "type": "audio"
+              });
+
+              Firestore.instance
+                  .collection('chats')
+                  .document(widget.currentUser.id)
+                  .collection('userChats')
+                  .document(chatId)
+                  .setData({
+                "id": widget.selectedUser.id,
+                "bio": widget.selectedUser.bio,
+                "displayName": widget.selectedUser.displayName,
+                "username": widget.selectedUser.username,
+                "photoUrl": widget.selectedUser.photoUrl,
+                "lastMessage": "You: sent a audio clip",
+                "chatId": chatId
+              });
+              Firestore.instance
+                  .collection('chats')
+                  .document(widget.selectedUser.id)
+                  .collection('userChats')
+                  .document(chatId)
+                  .setData({
+                "id": widget.currentUser.id,
+                "bio": widget.currentUser.bio,
+                "displayName": widget.currentUser.displayName,
+                "username": widget.currentUser.username,
+                "photoUrl": widget.currentUser.photoUrl,
+                "lastMessage":
+                    "${widget.currentUser.displayName}: sent a audio clip",
+                "chatId": chatId
+              });
               File file = localFileSystem.file(results.path);
               StorageUploadTask uploadTask = FirebaseStorage.instance
                   .ref()
@@ -811,7 +969,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget buildLocationShowInChat({var snapshot, int index}) {
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         Navigator.push(context, MaterialPageRoute(builder: (context) {
           return ShowSharedLocation(
             location: snapshot.data.documents[index]['location'],

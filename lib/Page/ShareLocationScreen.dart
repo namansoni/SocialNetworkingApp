@@ -114,12 +114,56 @@ class _ShareLocationScreenState extends State<ShareLocationScreen> {
     return Align(
       alignment: Alignment.bottomCenter,
       child: GestureDetector(
-        onTap: () {
+        onTap: () async {
           print("shared");
           if (position != null) {
+            DocumentSnapshot docSnapshot = await Firestore.instance
+                .collection('chattingWith')
+                .document(widget.selectedUser.id)
+                .get();
+            if (docSnapshot['id'] != widget.currentUser.id) {
+              Firestore.instance
+                  .collection('unreadChats')
+                  .document(widget.selectedUser.id)
+                  .collection('unreadchats')
+                  .document(widget.chatId)
+                  .collection(widget.chatId)
+                  .add({
+                "message": "shares his/her location.",
+                "timestamp": DateTime.now()
+              });
+            }
             Firestore.instance
                 .collection('chats')
                 .document(widget.currentUser.id)
+                .collection('userChats')
+                .document(widget.chatId)
+                .collection('chats')
+                .add({
+              "sender": widget.currentUser.id,
+              "receiver": widget.selectedUser.id,
+              "timestamp": DateTime.now(),
+              "type": "location",
+              "location": GeoPoint(position.latitude, position.longitude)
+            });
+            Firestore.instance
+                  .collection('chats')
+                  .document(widget.currentUser.id)
+                  .collection('userChats')
+                  .document(widget.chatId)
+                  .setData({
+                "id": widget.selectedUser.id,
+                "bio": widget.selectedUser.bio,
+                "displayName": widget.selectedUser.displayName,
+                "username": widget.selectedUser.username,
+                "photoUrl": widget.selectedUser.photoUrl,
+                "lastMessage":
+                    "You: shared your location.",
+                "chatId": widget.chatId
+              });
+            Firestore.instance
+                .collection('chats')
+                .document(widget.selectedUser.id)
                 .collection('userChats')
                 .document(widget.chatId)
                 .collection('chats')
@@ -135,15 +179,17 @@ class _ShareLocationScreenState extends State<ShareLocationScreen> {
                 .document(widget.selectedUser.id)
                 .collection('userChats')
                 .document(widget.chatId)
-                .collection('chats')
-                .add({
-              "sender": widget.currentUser.id,
-              "receiver": widget.selectedUser.id,
-              "timestamp": DateTime.now(),
-              "type": "location",
-              "location": GeoPoint(position.latitude, position.longitude)
+                .setData({
+              "id": widget.currentUser.id,
+              "bio": widget.currentUser.bio,
+              "displayName": widget.currentUser.displayName,
+              "username": widget.currentUser.username,
+              "photoUrl": widget.currentUser.photoUrl,
+              "lastMessage": "${widget.currentUser.displayName}: shared his/her location.",
+              "chatId": widget.chatId
             });
-            SnackBar snackBar=new SnackBar(content: Text("Location Shared.."));
+            SnackBar snackBar =
+                new SnackBar(content: Text("Location Shared.."));
             scaffoldKey.currentState.showSnackBar(snackBar);
           } else {
             SnackBar snackBar = new SnackBar(

@@ -31,6 +31,7 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     getUserTimeline();
   }
+
   @override
   void dispose() {
     // TODO: implement dispose
@@ -43,17 +44,21 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       print("from resumed");
       print(widget.currentuser.id);
-      Firestore.instance.collection('usersStatus').document(widget.currentuser.id).setData({
-        "status":"online",
-        "id":widget.currentuser.id
-      },);
+      Firestore.instance
+          .collection('usersStatus')
+          .document(widget.currentuser.id)
+          .setData(
+        {"status": "online", "id": widget.currentuser.id},
+      );
     } else {
       print("from not resumed");
       print(widget.currentuser.id);
-      Firestore.instance.collection('usersStatus').document(widget.currentuser.id).setData({
-        "status":"offline",
-        "id":widget.currentuser.id
-      },);
+      Firestore.instance
+          .collection('usersStatus')
+          .document(widget.currentuser.id)
+          .setData(
+        {"status": "offline", "id": widget.currentuser.id},
+      );
     }
   }
 
@@ -62,7 +67,7 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
         .collection("timeline")
         .document(widget.currentuser.id)
         .collection("timelinePosts")
-        .orderBy("timestamp", descending: false)
+        .orderBy("timestamp", descending: true)
         .getDocuments();
     QuerySnapshot snapshot = await Firestore.instance
         .collection('Followers')
@@ -79,10 +84,12 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
     });
     //setUser satus online or offline
     print("get Timeline");
-     Firestore.instance.collection('usersStatus').document(widget.currentuser.id).setData({
-        "status":"online",
-        "id":widget.currentuser.id
-      },);
+    Firestore.instance
+        .collection('usersStatus')
+        .document(widget.currentuser.id)
+        .setData(
+      {"status": "online", "id": widget.currentuser.id},
+    );
   }
 
   @override
@@ -104,23 +111,25 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
               fontFamily: 'Signatra', fontSize: 35, color: Colors.black),
         ),
         actions: <Widget>[
-          Transform.rotate(
-              angle: -22 / 40,
-              child: IconButton(
-                  icon: Icon(
-                    Icons.send,
-                    color: Colors.blue,
-                    size: 30,
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => ChatPage(
-                                  currentUser: currentUser,
-                                  followersId: _followersId,
-                                )));
-                  }))
+          CircleAvatar(
+            child: Transform.rotate(
+                angle: -22 / 40,
+                child: IconButton(
+                    icon: Icon(
+                      Icons.send,
+                      color: Colors.blue,
+                      size: 30,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ChatPage(
+                                    currentUser: currentUser,
+                                    followersId: _followersId,
+                                  )));
+                    })),
+          )
         ],
         backgroundColor: Colors.white,
       ),

@@ -22,6 +22,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin<Sear
     return AppBar(
       backgroundColor: Colors.white,
       title: TextFormField(
+        autofocus: false,
         controller: searchController,
         onChanged: (val) {
           handleSearch(val);
@@ -144,7 +145,12 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin<Sear
       },
     );
   }
-
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    searchedUsers=null;
+  }
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -173,5 +179,5 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin<Sear
 
   @override
   // TODO: implement wantKeepAlive
-  bool get wantKeepAlive => true;
+  bool get wantKeepAlive => false;
 }

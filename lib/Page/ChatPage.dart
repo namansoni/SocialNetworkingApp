@@ -1,6 +1,8 @@
+import 'package:audioplayers/audio_cache.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
 import 'package:socialnetworking/Page/ChatScreen.dart';
 import 'package:socialnetworking/Page/SearchChat.dart';
@@ -92,6 +94,7 @@ class _ChatpageState extends State<ChatPage> {
   }
 
   Widget buildChats() {
+   
     return StreamBuilder(
       stream: Firestore.instance
           .collection('chats')
@@ -112,62 +115,121 @@ class _ChatpageState extends State<ChatPage> {
                 UserModel selectedUser =
                     UserModel.fromDocument(snapshot.data.documents[index]);
                 return ListTile(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(
-                        builder: (context) {
-                          return ChatScreen(
-                            currentUser: widget.currentUser,
-                            selectedUser: selectedUser,
-                          );
-                        },
-                      ));
-                    },
-                    leading: CircleAvatar(
-                      radius: 28,
-                      backgroundImage:
-                          CachedNetworkImageProvider(selectedUser.photoUrl),
-                    ),
-                    title: Text(
-                      selectedUser.displayName,
-                      style: TextStyle(fontSize: 18),
-                    ),
-                    subtitle: Container(
-                      height: 15,
-                      child: Text(
-                          snapshot.data.documents[index]['lastMessage'],
-                          style: TextStyle(fontSize: 15,),overflow: TextOverflow.ellipsis,),
-                    ),
-                    trailing: StreamBuilder(
-                      stream: Firestore.instance
-                          .collection("usersStatus")
-                          .where("id", isEqualTo: selectedUser.id)
-                          .snapshots(),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          return SizedBox(
-                            width: 2,
-                          );
-                        }
-                        if (snapshot.hasError) {
-                          return IconButton(
-                            icon: Icon(Icons.error),
-                            onPressed: () {},
-                          );
-                        } else {
-                          if (snapshot.data.documents[0]['status'] ==
-                              'online') {
-                            return Text(
-                              "Active Now",
-                              style: TextStyle(
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold),
-                            );
-                          } else {
-                            return Text("Offline");
-                          }
-                        }
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) {
+                        return ChatScreen(
+                          currentUser: widget.currentUser,
+                          selectedUser: selectedUser,
+                        );
                       },
                     ));
+                    Firestore.instance
+                        .collection('chattingWith')
+                        .document(widget.currentUser.id)
+                        .setData({"id": selectedUser.id});
+                  },
+                  leading: CircleAvatar(
+                    radius: 28,
+                    backgroundImage:
+                        CachedNetworkImageProvider(selectedUser.photoUrl),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: StreamBuilder(
+                        stream: Firestore.instance
+                            .collection("usersStatus")
+                            .where("id", isEqualTo: selectedUser.id)
+                            .snapshots(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return SizedBox(
+                              width: 2,
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return IconButton(
+                              icon: Icon(Icons.error),
+                              onPressed: () {},
+                            );
+                          } else {
+                            if (snapshot.data.documents[0]['status'] ==
+                                'online') {
+                              return Stack(
+                                children: <Widget>[
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Container(
+                                      height: 20,
+                                      width: 20,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  Card(
+                                    elevation: 6,
+                                    color: Colors.green,
+                                    child: Container(
+                                      height: 12,
+                                      width: 12,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            } else {
+                              return SizedBox(width: 0,);
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    selectedUser.displayName,
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  subtitle: Container(
+                    height: 15,
+                    child: Text(
+                      snapshot.data.documents[index]['lastMessage'],
+                      style: TextStyle(
+                        fontSize: 15,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  trailing: StreamBuilder(
+                    stream: Firestore.instance
+                        .collection('unreadChats')
+                        .document(widget.currentUser.id)
+                        .collection('unreadchats')
+                        .document(snapshot.data.documents[index]['chatId'])
+                        .collection(snapshot.data.documents[index]['chatId'])
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Container(width: 2,height: 2,);
+                      }
+                      if (snapshot.hasError) {
+                        return Container(width: 2,height: 2);
+                      }
+                      if (snapshot.data.documents.length == 0 ||
+                          snapshot.data.documents.length == null) {
+                        return Container(width: 2,height: 2);
+                      }
+                      
+                      return Card(
+                        elevation: 6,
+                        color: Colors.green,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top:2,bottom:2,right:10,left:10),
+                          child: Text(
+                            snapshot.data.documents.length.toString(),
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
               },
               itemCount: snapshot.data.documents.length,
             ),

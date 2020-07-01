@@ -49,70 +49,70 @@ class _EditProfileState extends State<EditProfile> {
   buildEditForm() {
     if (currentUser != null) {
       return SingleChildScrollView(
-        child: Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          padding: EdgeInsets.only(left: 20, right: 20, top: 10),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Hero(
-                tag: "dash",
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundImage:
-                      CachedNetworkImageProvider(currentUser.photoUrl),
-                ),
-              ),
-              TextFormField(
-                controller: displayNameController,
-                decoration: InputDecoration(
-                    errorText:
-                        displayNameValid ? null : "Display name too short",
-                    labelText: "Name",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)))),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              TextFormField(
-                controller: userNameController,
-                decoration: InputDecoration(
-                    errorText: usernameValid ? null : "Username is too short",
-                    labelText: "Username",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)))),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              TextFormField(
-                controller: bioController,
-                decoration: InputDecoration(
-                    errorText: bioValid ? null : "Bio is too long",
-                    labelText: "Bio",
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(10)))),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              GestureDetector(
-                onTap: logout,
-                child: Container(
-                  width: 165,
-                  height: 30,
-                  decoration: BoxDecoration(
-                      border: Border.all(color: Colors.red),
-                      borderRadius: BorderRadius.all(Radius.circular(8))),
-                  child: Center(child: Text("Logout")),
-                ),
-              ),
-            ],
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.7,
+            padding: EdgeInsets.only(left: 20, right: 20, top: 10),
+            child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        Hero(
+          tag: "dash",
+          child: CircleAvatar(
+            radius: 60,
+            backgroundImage:
+                CachedNetworkImageProvider(currentUser.photoUrl),
           ),
         ),
-      );
+        TextFormField(
+          controller: displayNameController,
+          decoration: InputDecoration(
+              errorText:
+                  displayNameValid ? null : "Display name too short",
+              labelText: "Name",
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)))),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        TextFormField(
+          controller: userNameController,
+          decoration: InputDecoration(
+              errorText: usernameValid ? null : "Username is too short",
+              labelText: "Username",
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)))),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        TextFormField(
+          controller: bioController,
+          decoration: InputDecoration(
+              errorText: bioValid ? null : "Bio is too long",
+              labelText: "Bio",
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)))),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        GestureDetector(
+          onTap: logout,
+          child: Container(
+            width: 165,
+            height: 30,
+            decoration: BoxDecoration(
+                border: Border.all(color: Colors.red),
+                borderRadius: BorderRadius.all(Radius.circular(8))),
+            child: Center(child: Text("Logout")),
+          ),
+        ),
+      ],
+            ),
+          ),
+        );
     }
   }
 

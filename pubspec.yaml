@@ -51,13 +51,15 @@ dependencies:
   file:
   google_maps_flutter:
   location:
+  autostart:
+  shared_preferences:
+  back_button_interceptor:
 
 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -77,6 +79,8 @@ flutter:
       - assets/images/search.svg
       - assets/images/upload.svg
       - assets/images/mapsimage.png
+      - assets/images/icon.png
+      - assets/sounds/swiftly.mp3
 
 
   #   - images/a_dot_ham.jpeg
