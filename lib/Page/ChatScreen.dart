@@ -27,6 +27,8 @@ import 'package:stop_watch_timer/stop_watch_timer.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:socialnetworking/Page/Calling/pickup_layout.dart';
+import 'package:socialnetworking/Utils/call_utils.dart';
+import 'package:socialnetworking/Utils/permission.dart';
 
 class ChatScreen extends StatefulWidget {
   UserModel currentUser;
@@ -135,7 +137,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 Icons.videocam,
                 color: Colors.black,
               ),
-              onPressed: () {},
+              onPressed: () async{
+                print('making call');
+                await Permissions.cameraAndMicrophonePermissionsGranted()?
+                CallUtils.dial(
+                from: widget.currentUser,
+                to: widget.selectedUser,
+                context: context):{};
+              },
             ),
             IconButton(
               icon: Icon(
