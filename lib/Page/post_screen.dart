@@ -14,7 +14,9 @@ class _PostScreenState extends State<PostScreen> {
   Widget build(BuildContext context) {
     print(widget.postId);
     print(widget.userId);
-    return Scaffold(
+    return PickupLayout(
+      currentUser: widget.currentUser,
+      scaffold: Scaffold(
       appBar: AppBar(
         leading: IconButton(
           color: Colors.black,
@@ -49,6 +51,6 @@ class _PostScreenState extends State<PostScreen> {
           );
         },
       ),
-    );
+    ),);
   }
 }
