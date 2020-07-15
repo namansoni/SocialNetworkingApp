@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
 import 'package:socialnetworking/Page/Home.dart';
 import 'package:socialnetworking/Widgets/colors.dart';
-
+import 'Calling/pickup_layout.dart'
 import 'Profile.dart';
 
 class Search extends StatefulWidget {
@@ -156,11 +156,14 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin<Sear
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Scaffold(
+    return PickupLayout(
+      currentUser: currentUser,
+     scaffold: Scaffold(
       backgroundColor: colors.mainBackgroundColor,
       appBar: buildSearchBar(),
       body: searchedUsers == null ? NoContentBody() : BuildSearchResults(),
-    );
+    ),
+   );
   }
 
   void handleSearch(String val) {
