@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:socialnetworking/Models/CallModel.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
+import 'package:socialnetworking/Page/ChatPage.dart';
 import 'package:socialnetworking/Page/Home.dart';
 import 'package:socialnetworking/Utils/setting.dart';
 import 'package:socialnetworking/Methods/CallMethods.dart';
@@ -34,7 +35,6 @@ class _CallerPageState extends State<CallerPage> {
       callStreamSubscription=callMethods.callStream(uid: widget.currentUser.id).listen((DocumentSnapshot ds) {
         switch (ds.data){
           case null:
-            Navigator.pop(context);
             break;
           default:
             break;
@@ -59,7 +59,7 @@ class _CallerPageState extends State<CallerPage> {
       callStreamSubscription=callMethods.callStream(uid: widget.currentUser.id).listen((DocumentSnapshot ds) {
         switch (ds.data){
           case null:
-            Navigator.pop(context);
+            Navigator.push(context, MaterialPageRoute(builder: (context) => Home(),));
             break;
           default:
             return Scaffold(

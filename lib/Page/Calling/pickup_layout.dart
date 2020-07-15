@@ -14,7 +14,7 @@ class PickupLayout extends StatelessWidget {
   final UserModel currentUser;
   PickupLayout({@required this.scaffold,@required this.currentUser});
   @override
-  socialnetworkinguild(BuildContext context) {
+ Widget build(BuildContext context) {
 
     return StreamBuilder<DocumentSnapshot>(
       stream:  callMethods.callStream(uid: currentUser.id ),
@@ -38,11 +38,5 @@ class PickupLayout extends StatelessWidget {
         }
       },
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // TODO: implement build
-    throw UnimplementedError();
   }
 }

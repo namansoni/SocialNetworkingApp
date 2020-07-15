@@ -20,6 +20,7 @@ import 'package:socialnetworking/Page/Imageandvideocapture.dart';
 import 'package:socialnetworking/Page/ShareLocationScreen.dart';
 import 'package:socialnetworking/Page/showSharedLocation.dart';
 import 'package:socialnetworking/Page/videoScreen.dart';
+import 'package:socialnetworking/Utils/call_utils.dart';
 import 'package:socialnetworking/Widgets/customPopupMenu.dart';
 import 'package:socialnetworking/Widgets/custom_image.dart';
 import 'package:socialnetworking/Widgets/imageMessage.dart';
@@ -135,7 +136,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 Icons.videocam,
                 color: Colors.black,
               ),
-              onPressed: () {},
+              onPressed: () {
+                CallUtils.dial(context: context,from: widget.currentUser,to: widget.selectedUser);
+              },
             ),
             IconButton(
               icon: Icon(
