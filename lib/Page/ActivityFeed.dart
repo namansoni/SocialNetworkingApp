@@ -18,6 +18,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
     return PickupLayout(
       currentUser: currentUser,
       scaffold: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           centerTitle: true,
           backgroundColor: Colors.white,
