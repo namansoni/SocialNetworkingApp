@@ -98,7 +98,7 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return PickupLayout(
-      currentUser: widget.currentUser,
+      currentUser: currentUser,
       scaffold: Scaffold(
       appBar: AppBar(
         leading: IconButton(
