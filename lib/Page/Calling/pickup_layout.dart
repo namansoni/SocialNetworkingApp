@@ -39,5 +39,6 @@ class PickupLayout extends StatelessWidget {
       },
     );
   }
+}
 
 
