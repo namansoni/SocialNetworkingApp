@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
 import 'package:socialnetworking/Page/ChatScreen.dart';
 import 'package:socialnetworking/Page/SearchChat.dart';
+import 'package:socialnetworking/Page/Calling/pickup_layout.dart';
 
 class ChatPage extends StatefulWidget {
   UserModel currentUser;
@@ -24,34 +25,37 @@ class _ChatpageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+    return ickupLayout(
+      currentUser: widget.currentUser,
+      scaffold: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+          title: Text(
+            "Direct",
+            style: TextStyle(color: Colors.black),
+          ),
         ),
-        title: Text(
-          "Direct",
-          style: TextStyle(color: Colors.black),
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            buildSearchBar(),
-            Padding(
-              padding: const EdgeInsets.only(left: 10, top: 10),
-              child: Text(
-                "Messages",
-                style: TextStyle(color: Colors.blueGrey[400], fontSize: 18),
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              buildSearchBar(),
+              Padding(
+                padding: const EdgeInsets.only(left: 10, top: 10),
+                child: Text(
+                  "Messages",
+                  style: TextStyle(color: Colors.blueGrey[400], fontSize: 18),
+                ),
               ),
-            ),
-            buildChats()
-          ],
+              buildChats()
+            ],
+          ),
         ),
       ),
     );
