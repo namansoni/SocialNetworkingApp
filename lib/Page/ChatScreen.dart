@@ -19,6 +19,7 @@ import 'package:socialnetworking/Widgets/customPopupMenu.dart';
 import 'package:socialnetworking/Widgets/custom_image.dart';
 import 'package:socialnetworking/Widgets/imageMessage.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:socialnetworking/Page/Calling/pickup_layout.dart';
 
 class ChatScreen extends StatefulWidget {
   UserModel currentUser;
@@ -83,78 +84,81 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-          ),
-          onPressed: isRecording
-              ? null
-              : () {
-                  Firestore.instance
-                      .collection('chattingWith')
-                      .document(widget.currentUser.id)
-                      .setData({"id": ""});
-                  Navigator.of(context).pop();
-                },
-        ),
-        title: ListTile(
-          contentPadding: EdgeInsets.only(left: 0),
-          leading: CircleAvatar(
-            backgroundImage:
-                CachedNetworkImageProvider(widget.selectedUser.photoUrl),
-          ),
-          title: Text(widget.selectedUser.displayName),
-          subtitle: Text(widget.selectedUser.username),
-        ),
-        actions: <Widget>[
-          IconButton(
+    return PickupLayout(
+      currentUser: widget.currentUser,
+      scaffold: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          leading: IconButton(
             icon: Icon(
-              Icons.videocam,
+              Icons.arrow_back,
               color: Colors.black,
             ),
-            onPressed: () {},
+            onPressed: isRecording
+                ? null
+                : () {
+                    Firestore.instance
+                        .collection('chattingWith')
+                        .document(widget.currentUser.id)
+                        .setData({"id": ""});
+                    Navigator.of(context).pop();
+                  },
           ),
-          IconButton(
-            icon: Icon(
-              Icons.info_outline,
-              color: Colors.black,
+          title: ListTile(
+            contentPadding: EdgeInsets.only(left: 0),
+            leading: CircleAvatar(
+              backgroundImage:
+                  CachedNetworkImageProvider(widget.selectedUser.photoUrl),
             ),
-            onPressed: () {},
+            title: Text(widget.selectedUser.displayName),
+            subtitle: Text(widget.selectedUser.username),
           ),
-          PopupMenuButton(
-            icon: Icon(
-              Icons.more_vert,
-              color: Colors.black,
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(
+                Icons.videocam,
+                color: Colors.black,
+              ),
+              onPressed: () {},
             ),
-            itemBuilder: (context) {
-              return choices.map((choice) {
-                return PopupMenuItem(
-                  value: choice,
-                  child: Text(
-                    choice.title,
-                  ),
-                );
-              }).toList();
-            },
-            onSelected: (value) {
-              if (value.title == "Share Your Location") {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return ShareLocationScreen(
-                    chatId: chatId,
-                    currentUser: widget.currentUser,
-                    selectedUser: widget.selectedUser,
+            IconButton(
+              icon: Icon(
+                Icons.info_outline,
+                color: Colors.black,
+              ),
+              onPressed: () {},
+            ),
+            PopupMenuButton(
+              icon: Icon(
+                Icons.more_vert,
+                color: Colors.black,
+              ),
+              itemBuilder: (context) {
+                return choices.map((choice) {
+                  return PopupMenuItem(
+                    value: choice,
+                    child: Text(
+                      choice.title,
+                    ),
                   );
-                }));
-              }
-            },
-          )
-        ],
-      ),
-      body: SingleChildScrollView(child: buildChats()),
+                }).toList();
+              },
+              onSelected: (value) {
+                if (value.title == "Share Your Location") {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) {
+                    return ShareLocationScreen(
+                      chatId: chatId,
+                      currentUser: widget.currentUser,
+                      selectedUser: widget.selectedUser,
+                    );
+                  }));
+                }
+              },
+            )
+          ],
+        ),
+        body: SingleChildScrollView(child: buildChats()),
+       ),
     );
   }
 
