@@ -61,6 +61,8 @@ dependencies:
   video_thumbnail:
   animations:
   curved_navigation_bar:
+  agora_rtc_engine:
+  permission_handler:
 
 
 dev_dependencies:
