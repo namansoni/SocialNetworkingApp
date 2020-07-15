@@ -28,7 +28,7 @@ class _SearchChatState extends State<SearchChat> {
   @override
   Widget build(BuildContext context) {
     return PickupLayout(
-      currentUser: currentUser,
+      currentUser: widget.currentUser,
      scaffold: Scaffold(
       backgroundColor: colors.mainBackgroundColor,
       body: SingleChildScrollView(
