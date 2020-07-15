@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
 import 'package:image/image.dart' as Im;
+import 'Calling/pickup_layout.dart';
 
 class Upload extends StatefulWidget {
   UserModel currentUser;
