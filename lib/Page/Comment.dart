@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'Home.dart';
-
+import 'package:socialnetworking/Page/Calling/pickup_layout.dart';
 class Comment extends StatefulWidget {
   final String postId;
   final String postownerId;
@@ -21,35 +21,38 @@ class _CommentState extends State<Comment> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(Icons.clear,color: Colors.black,),
-          onPressed: (){
-            Navigator.of(context).pop();
-          },
-        ),
-        backgroundColor: Colors.white,
-        title: Text("Comments",style: TextStyle(color: Colors.black),),
-      ),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: buildComments(),
+    return PickupLayout(
+      currentUser: currentUser,
+      scaffold: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          leading: IconButton(
+            icon: Icon(Icons.clear,color: Colors.black,),
+            onPressed: (){
+              Navigator.of(context).pop();
+            },
           ),
-          Divider(),
-          ListTile(
-              title: TextFormField(
-                controller: commentController,
-                decoration: InputDecoration(labelText: "Write a comment..."),
-              ),
-              trailing: OutlineButton(
-                onPressed: addComment,
-                child: Text("Post"),
-                borderSide: BorderSide.none,
-              ))
-        ],
+          backgroundColor: Colors.white,
+          title: Text("Comments",style: TextStyle(color: Colors.black),),
+        ),
+        body: Column(
+          children: <Widget>[
+            Expanded(
+              child: buildComments(),
+            ),
+            Divider(),
+            ListTile(
+                title: TextFormField(
+                  controller: commentController,
+                  decoration: InputDecoration(labelText: "Write a comment..."),
+                ),
+                trailing: OutlineButton(
+                  onPressed: addComment,
+                  child: Text("Post"),
+                  borderSide: BorderSide.none,
+                ))
+          ],
+        ),
       ),
     );
   }
