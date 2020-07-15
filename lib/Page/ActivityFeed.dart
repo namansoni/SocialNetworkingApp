@@ -15,6 +15,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -38,9 +39,12 @@ class _ActivityFeedState extends State<ActivityFeed> {
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Card(
-            elevation: 6,
-            child: Center(child: CircularProgressIndicator()),
+          return Container(
+            color: Colors.white,
+            child: Center(child: Container(
+              height: 20,
+              width: 20,
+              child: CircularProgressIndicator())),
           );
         }
         if (snapshot.hasError) {

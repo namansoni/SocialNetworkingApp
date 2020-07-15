@@ -11,12 +11,9 @@ class _ImageMessageState extends State<ImageMessage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Hero(
-        tag: widget.url,
-              child: Center(
+      body: Center(
           child: cachedNetworkimage(widget.url),
         ),
-      ),
     );
   }
 }

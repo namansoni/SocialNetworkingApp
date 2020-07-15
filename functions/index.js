@@ -187,7 +187,7 @@ exports.onMessageSend = functions.firestore
           const reversedArayofMessages=arrayOfMessages.reverse();
           let body="";
           reversedArayofMessages.forEach((mes)=>{
-               body=body+senderDisplayName+": "+mes+"\n\n";
+               body=body+"\n"+senderDisplayName+": "+mes;
           });
           if (context.params.userId != senderId) {
                sendNotification(receiversAndroidNotificationToken, body, chatId);
@@ -200,6 +200,9 @@ exports.onMessageSend = functions.firestore
                          body: body,
                          title: "New Message",
 
+                    },
+                    data:{
+                         'senderId':senderId
                     },
 
                     token: receiversAndroidNotificationToken,

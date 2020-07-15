@@ -5,20 +5,23 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
 import 'package:socialnetworking/Page/ChatPage.dart';
 import 'package:socialnetworking/Page/Home.dart';
+import 'package:socialnetworking/Widgets/colors.dart';
 import 'package:socialnetworking/Widgets/post.dart';
+import 'package:socialnetworking/main.dart';
 
 import 'Profile.dart';
 
 class Timeline extends StatefulWidget {
   UserModel currentuser;
-
+  var cameras;
   @override
   _TimelineState createState() => _TimelineState();
 
-  Timeline({this.currentuser});
+  Timeline({this.currentuser,this.cameras});
 }
 
 class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
@@ -100,9 +103,10 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
           icon: Icon(
             Icons.camera_alt,
             size: 30,
+
           ),
           onPressed: () {},
-          color: Colors.blue,
+          color: Colors.black
         ),
         centerTitle: true,
         title: Text(
@@ -112,28 +116,35 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
         ),
         actions: <Widget>[
           CircleAvatar(
-            child: Transform.rotate(
-                angle: -22 / 40,
-                child: IconButton(
-                    icon: Icon(
-                      Icons.send,
-                      color: Colors.blue,
-                      size: 30,
-                    ),
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => ChatPage(
-                                    currentUser: currentUser,
-                                    followersId: _followersId,
-                                  )));
-                    })),
+            backgroundColor: Colors.white,
+            child: Stack(
+              children: <Widget>[
+                Transform.rotate(
+                    angle: -22 / 40,
+                    child: IconButton(
+                        icon: Icon(
+                          Icons.send,
+                          color: Colors.black,
+                          size: 30,
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ChatPage(
+                                        currentUser: currentUser,
+                                        followersId: _followersId,
+                                        cameras:widget.cameras
+                                      )));
+                        })),
+              ],
+            ),
           )
         ],
         backgroundColor: Colors.white,
       ),
       body: RefreshIndicator(
+        backgroundColor: Colors.white,
           onRefresh: () => getUserTimeline(), child: buildTimeline()),
     );
   }
@@ -146,6 +157,7 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
       return ListView(
         children: <Widget>[
           Container(
+            color: colors.mainBackgroundColor,
             width: double.infinity,
             height: MediaQuery.of(context).size.height * 0.1,
             child: Padding(
@@ -157,6 +169,7 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
             ),
           ),
           Container(
+            color: colors.mainBackgroundColor,
               height: MediaQuery.of(context).size.height * 0.9,
               child: buildSuggestionforUser())
         ],

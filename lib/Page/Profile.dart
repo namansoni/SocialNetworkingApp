@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
 import 'package:socialnetworking/Page/Home.dart';
+import 'package:socialnetworking/Widgets/colors.dart';
 import 'package:socialnetworking/Widgets/post.dart';
 import 'package:socialnetworking/Widgets/post_tile.dart';
 
@@ -127,16 +128,15 @@ class _ProfileState extends State<Profile> {
         backgroundColor: Colors.white,
       ),
       body: RefreshIndicator(
-        onRefresh: (){
-          setState(() {
-            
-          });
+        onRefresh: () {
+          setState(() {});
           return Future.value(false);
         },
-              child: ListView(
+        child: ListView(
           shrinkWrap: true,
           children: <Widget>[
             Container(
+                color: colors.mainBackgroundColor,
                 height: MediaQuery.of(context).size.height * 0.28,
                 width: MediaQuery.of(context).size.width,
                 child: buildProfileHeader()),
@@ -145,6 +145,7 @@ class _ProfileState extends State<Profile> {
               height: 2.0,
             ),
             Container(
+              color: colors.mainBackgroundColor,
               height: MediaQuery.of(context).size.height * 0.53,
               width: double.infinity,
               child: buildProfilePosts(),
@@ -321,16 +322,18 @@ class _ProfileState extends State<Profile> {
           height: MediaQuery.of(context).size.height * 0.5,
           child: SvgPicture.asset('assets/images/upload.svg'));
     } else if (postOrientation == "grid") {
-      List<GridTile> gridTiles = [];
+      List<Container> gridTiles = [];
       posts.forEach((post) {
-        gridTiles.add(GridTile(
-          child: PostTile(post: post),
+        gridTiles.add(Container(
+          decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey[200])),
+          child: GridTile(
+            child: PostTile(post: post),
+          ),
         ));
       });
       return GridView.count(
         crossAxisCount: 3,
-        mainAxisSpacing: 0.5,
-        crossAxisSpacing: 0.5,
         childAspectRatio: 1.0,
         shrinkWrap: true,
         physics: NeverScrollableScrollPhysics(),
@@ -411,41 +414,44 @@ class _ProfileState extends State<Profile> {
   }
 
   buildTogglePostOrientation() {
-    return Column(
-      children: <Widget>[
-        Divider(
-          height: 2.0,
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            IconButton(
-              color: postOrientation == "grid" ? Colors.blue : Colors.grey,
-              icon: Icon(
-                Icons.grid_on,
-                size: 30,
+    return Container(
+      color: colors.mainBackgroundColor,
+      child: Column(
+        children: <Widget>[
+          Divider(
+            height: 2.0,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              IconButton(
+                color: postOrientation == "grid" ? Colors.blue : Colors.grey,
+                icon: Icon(
+                  Icons.grid_on,
+                  size: 30,
+                ),
+                onPressed: () {
+                  setState(() {
+                    postOrientation = "grid";
+                  });
+                },
               ),
-              onPressed: () {
-                setState(() {
-                  postOrientation = "grid";
-                });
-              },
-            ),
-            IconButton(
-              color: postOrientation == "list" ? Colors.blue : Colors.grey,
-              icon: Icon(
-                Icons.list,
-                size: 30.0,
-              ),
-              onPressed: () {
-                setState(() {
-                  postOrientation = "list";
-                });
-              },
-            )
-          ],
-        ),
-      ],
+              IconButton(
+                color: postOrientation == "list" ? Colors.blue : Colors.grey,
+                icon: Icon(
+                  Icons.list,
+                  size: 30.0,
+                ),
+                onPressed: () {
+                  setState(() {
+                    postOrientation = "list";
+                  });
+                },
+              )
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

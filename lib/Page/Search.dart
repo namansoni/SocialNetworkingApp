@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
 import 'package:socialnetworking/Page/Home.dart';
+import 'package:socialnetworking/Widgets/colors.dart';
 
 import 'Profile.dart';
 
@@ -46,6 +47,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin<Sear
 
   Container NoContentBody() {
     return Container(
+      color: colors.mainBackgroundColor,
       child: ListView(
         shrinkWrap: true,
         padding: EdgeInsets.all(10),
@@ -155,6 +157,7 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin<Sear
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
+      backgroundColor: colors.mainBackgroundColor,
       appBar: buildSearchBar(),
       body: searchedUsers == null ? NoContentBody() : BuildSearchResults(),
     );

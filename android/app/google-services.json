@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "224238347887",
+    "firebase_url": "https://instashare-fa70a.firebaseio.com",
+    "project_id": "instashare-fa70a",
+    "storage_bucket": "instashare-fa70a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:224238347887:android:411b7835b5b4d6b7124f9a",
+        "android_client_info": {
+          "package_name": "com.example.socialnetworking"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "224238347887-ir2e6dlptn41s6a6aflr85dqngleo4c0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.socialnetworking",
+            "certificate_hash": "11e677d4e09fc98a24501b51cc10e8d84f71515b"
+          }
+        },
+        {
+          "client_id": "224238347887-apjjs36985g1bof3a5h5fbj876fcsub1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC6qnBC24PYv4ITP3cr6pks5ishqD9GH5Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "224238347887-apjjs36985g1bof3a5h5fbj876fcsub1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

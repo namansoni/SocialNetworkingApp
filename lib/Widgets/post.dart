@@ -96,8 +96,8 @@ class _PostState extends State<Post> {
   Widget build(BuildContext context) {
     isLiked = likes[currentuserId] == true;
     return Container(
+      color: Colors.white,
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           buildPostHeader(),
           buildPostImage(),
@@ -120,7 +120,7 @@ class _PostState extends State<Post> {
         if (!snapshot.hasData) {
           return Container(
             width: 200,
-            height: 55,
+            height: 62,
             child: ListTileShimmer(
               hasCustomColors: true,
               colors: [
@@ -135,37 +135,41 @@ class _PostState extends State<Post> {
           );
         }
         UserModel postOwner = UserModel.fromDocument(snapshot.data);
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: CachedNetworkImageProvider(postOwner.photoUrl),
-            radius: 20,
-            backgroundColor: Colors.grey,
+        return Container(
+          height: 62,
+          color: Colors.white,
+          child: ListTile( 
+            leading: CircleAvatar(
+              backgroundImage: CachedNetworkImageProvider(postOwner.photoUrl),
+              radius: 20,
+              backgroundColor: Colors.grey,
+            ),
+            title: GestureDetector(
+                onTap: () {
+                  if (ownerId != currentUser.id) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (ctx) => Profile(
+                                  profileId: ownerId,
+                                )));
+                  }
+                },
+                child: Text(
+                  postOwner.username,
+                  style:
+                      TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                )),
+            subtitle: location != "" ? Text(location) : null,
+            trailing: ownerId == currentUser.id
+                ? IconButton(
+                    icon: Icon(Icons.delete_outline),
+                    onPressed: () {
+                      ShowDialog();
+                    },
+                  )
+                : Text(""),
           ),
-          title: GestureDetector(
-              onTap: () {
-                if (ownerId != currentUser.id) {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (ctx) => Profile(
-                                profileId: ownerId,
-                              )));
-                }
-              },
-              child: Text(
-                postOwner.username,
-                style:
-                    TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-              )),
-          subtitle: location != "" ? Text(location) : null,
-          trailing: ownerId == currentUser.id
-              ? IconButton(
-                  icon: Icon(Icons.delete_outline),
-                  onPressed: () {
-                    ShowDialog();
-                  },
-                )
-              : Text(""),
         );
       },
     );
@@ -177,7 +181,10 @@ class _PostState extends State<Post> {
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          cachedNetworkimage(mediaUrl),
+          Padding(
+            padding: const EdgeInsets.only(top:6),
+            child: cachedNetworkimage(mediaUrl),
+          ),
           showHeart
               ? Animator<double>(
                   duration: Duration(milliseconds: 300),
@@ -199,61 +206,64 @@ class _PostState extends State<Post> {
   }
 
   buildPostFooter() {
-    return Column(
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            IconButton(
-              color: Colors.red[600],
-              icon: Icon(
-                isLiked ? Icons.favorite : Icons.favorite_border,
-                size: 28.0,
-              ),
-              onPressed: handleLikePost,
-            ),
-            IconButton(
-              color: Colors.blue,
-              icon: Icon(
-                Icons.comment,
-                size: 28.0,
-              ),
-              onPressed: () {
-                showComments(
-                    context: context,
-                    postId: postId,
-                    ownerId: ownerId,
-                    mediaUrl: mediaUrl);
-              },
-            )
-          ],
-        ),
-        Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Row(
+    return Container(
+      color: Colors.white,
+      child: Column(
+        children: <Widget>[
+          Row(
             children: <Widget>[
-              Text(
-                "$likeCounts likes",
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              IconButton(
+                color: Colors.red[600],
+                icon: Icon(
+                  isLiked ? Icons.favorite : Icons.favorite_border,
+                  size: 28.0,
+                ),
+                onPressed: handleLikePost,
+              ),
+              IconButton(
+                color: Colors.blue,
+                icon: Icon(
+                  Icons.comment,
+                  size: 28.0,
+                ),
+                onPressed: () {
+                  showComments(
+                      context: context,
+                      postId: postId,
+                      ownerId: ownerId,
+                      mediaUrl: mediaUrl);
+                },
               )
             ],
           ),
-        ),
-        description != null
-            ? Padding(
-                padding: const EdgeInsets.only(left: 10, top: 5),
-                child: Row(
-                  children: <Widget>[
-                    Text(
-                      "$username ",
-                      style:
-                          TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-                    ),
-                    Text("$description")
-                  ],
-                ),
-              )
-            : Container()
-      ],
+          Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: Row(
+              children: <Widget>[
+                Text(
+                  "$likeCounts likes",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                )
+              ],
+            ),
+          ),
+          description != null
+              ? Padding(
+                  padding: const EdgeInsets.only(left: 10, top: 5),
+                  child: Row(
+                    children: <Widget>[
+                      Text(
+                        "$username ",
+                        style:
+                            TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                      ),
+                      Text("$description")
+                    ],
+                  ),
+                )
+              : Container()
+        ],
+      ),
     );
   }
 

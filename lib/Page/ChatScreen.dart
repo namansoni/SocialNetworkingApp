@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'dart:io' as io;
+import 'dart:typed_data';
+import 'package:animations/animations.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -11,19 +13,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_audio_recorder/flutter_audio_recorder.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
 import 'package:image/image.dart' as Im;
+import 'package:socialnetworking/Page/Imageandvideocapture.dart';
 import 'package:socialnetworking/Page/ShareLocationScreen.dart';
 import 'package:socialnetworking/Page/showSharedLocation.dart';
+import 'package:socialnetworking/Page/videoScreen.dart';
 import 'package:socialnetworking/Widgets/customPopupMenu.dart';
 import 'package:socialnetworking/Widgets/custom_image.dart';
 import 'package:socialnetworking/Widgets/imageMessage.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
+import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class ChatScreen extends StatefulWidget {
   UserModel currentUser;
   UserModel selectedUser;
-  ChatScreen({this.currentUser, this.selectedUser});
+  var cameras;
+
+  ChatScreen({this.currentUser, this.selectedUser, this.cameras});
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
@@ -61,6 +70,10 @@ class _ChatScreenState extends State<ChatScreen> {
         element.reference.delete();
       });
     });
+    Firestore.instance
+        .collection('chattingWith')
+        .document(widget.currentUser.id)
+        .setData({"id": widget.selectedUser.id});
     BackButtonInterceptor.add(myInterceptor);
   }
 
@@ -69,6 +82,9 @@ class _ChatScreenState extends State<ChatScreen> {
     // TODO: implement dispose
     super.dispose();
     await _stopWatchTimer.dispose();
+    audioPlayer.forEach((element) {
+      element.stop();
+    });
     BackButtonInterceptor.remove(myInterceptor);
   }
 
@@ -179,12 +195,21 @@ class _ChatScreenState extends State<ChatScreen> {
                     children: <Widget>[
                       IconButton(
                           onPressed: () {
-                            sendImage(ImageSource.camera);
+                            //sendImage(ImageSource.camera);
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ImageandVideoCapture(
+                                          cameras: widget.cameras,
+                                          chatId: chatId,
+                                          currentUser: widget.currentUser,
+                                          selectedUser: widget.selectedUser,
+                                        )));
                           },
                           icon: Icon(
                             Icons.photo_camera,
                             size: 35,
-                            color: Colors.blue,
+                            color: Colors.black,
                           )),
                       SizedBox(
                         width: 10,
@@ -193,6 +218,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         width: MediaQuery.of(context).size.width * 0.4 - 4,
                         constraints: BoxConstraints(maxHeight: 200),
                         child: TextFormField(
+                          focusNode: FocusNode(canRequestFocus: false),
                           maxLines: null,
                           textInputAction: TextInputAction.newline,
                           style: TextStyle(color: Colors.black, fontSize: 18),
@@ -222,7 +248,36 @@ class _ChatScreenState extends State<ChatScreen> {
                           color: Colors.grey[900],
                         ),
                         onPressed: () {
-                          sendImage(ImageSource.gallery);
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              elevation: 3,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  ListTile(
+                                    leading: Icon(Icons.image),
+                                    title: Text("Image"),
+                                    onTap: () async {
+                                      Navigator.of(context).pop();
+                                      sendImage(ImageSource.gallery);
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: Icon(Icons.videocam),
+                                    title: Text("Video"),
+                                    onTap: () async {
+                                      Navigator.of(context).pop();
+                                      File file = await ImagePicker.pickVideo(
+                                          source: ImageSource.gallery);
+                                      sendVideo(file);
+                                    },
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
                         },
                       ),
                       IconButton(
@@ -259,33 +314,44 @@ class _ChatScreenState extends State<ChatScreen> {
               .snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return CircularProgressIndicator();
+              return Center(
+                  child: Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20)),
+                      elevation: 6,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                      )));
             }
             if (snapshot.hasError) {
               return Text("Has Error");
             }
-            snapshot.data.documents.forEach((value) {
+            snapshot.data.documents.forEach((value) async {
               isPlaying.add(false);
               audioPlayer.add(AudioPlayer());
               _duration.add(Duration());
               _position.add(Duration());
             });
 
-            return ListView.builder(
+            return ScrollablePositionedList.builder(
+              initialScrollIndex: 0,
+              reverse: true,
               itemBuilder: (context, index) {
                 return snapshot.data.documents[index]['sender'] ==
                         widget.currentUser.id
-                    ? Container(
-                        decoration: BoxDecoration(
-                            color: Colors.amber[200],
+                    ? Card(
+                        color: Color.fromRGBO(255, 250, 250, 1),
+                        borderOnForeground: true,
+                        shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(20),
-                                topLeft: Radius.circular(20),
-                                topRight: Radius.circular(20))),
+                                bottomLeft: Radius.circular(8),
+                                topLeft: Radius.circular(8),
+                                topRight: Radius.circular(8))),
+                        elevation: 2,
                         margin: EdgeInsets.only(
                             left: 80, right: 10, top: 10, bottom: 10),
                         child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(8),
                           child: Padding(
                             padding:
                                 snapshot.data.documents[index]['type'] == "text"
@@ -309,26 +375,21 @@ class _ChatScreenState extends State<ChatScreen> {
                                       )
                                     : snapshot.data.documents[index]['type'] ==
                                             "image"
-                                        ? GestureDetector(
-                                            onTap: () {
-                                              Navigator.push(context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) {
-                                                return ImageMessage(
+                                        ? OpenContainer(
+                                            transitionDuration:
+                                                Duration(milliseconds: 500),
+                                            openBuilder: (context, action) =>
+                                                ImageMessage(
                                                     url: snapshot.data
                                                             .documents[index]
-                                                        ['url']);
-                                              }));
-                                            },
-                                            child: Hero(
-                                              tag: snapshot
-                                                  .data.documents[index]['url'],
-                                              child: Container(
-                                                child: cachedNetworkimage(
-                                                    snapshot.data
-                                                            .documents[index]
                                                         ['url']),
-                                              ),
+                                            closedBuilder: (context, action) =>
+                                                Container(
+                                              constraints: BoxConstraints(
+                                                  maxHeight: 150),
+                                              child: cachedNetworkimage(snapshot
+                                                  .data
+                                                  .documents[index]['url']),
                                             ),
                                           )
                                         : snapshot.data.documents[index]
@@ -337,9 +398,15 @@ class _ChatScreenState extends State<ChatScreen> {
                                             ? buildAudioPlayerInChat(
                                                 snapshot: snapshot,
                                                 index: index)
-                                            : buildLocationShowInChat(
-                                                snapshot: snapshot,
-                                                index: index),
+                                            : snapshot.data.documents[index]
+                                                        ['type'] ==
+                                                    'location'
+                                                ? buildLocationShowInChat(
+                                                    snapshot: snapshot,
+                                                    index: index)
+                                                : buildVideoPlayerinChat(
+                                                    snapshot: snapshot,
+                                                    index: index),
                                 Align(
                                   alignment: Alignment.bottomRight,
                                   child: Padding(
@@ -368,17 +435,18 @@ class _ChatScreenState extends State<ChatScreen> {
                       )
                     : Column(
                         children: <Widget>[
-                          Container(
-                            decoration: BoxDecoration(
-                                color: Colors.blue[100],
+                          Card(
+                            elevation: 2,
+                            color: Colors.blue[100],
+                            shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.only(
-                                    bottomLeft: Radius.circular(20),
-                                    bottomRight: Radius.circular(20),
-                                    topRight: Radius.circular(20))),
+                                    topLeft: Radius.circular(8),
+                                    topRight: Radius.circular(8),
+                                    bottomRight: Radius.circular(8))),
                             margin: EdgeInsets.only(
                                 left: 30, right: 80, top: 10, bottom: 0),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(8),
                               child: Padding(
                                 padding: snapshot.data.documents[index]
                                             ['type'] ==
@@ -406,21 +474,22 @@ class _ChatScreenState extends State<ChatScreen> {
                                         : snapshot.data.documents[index]
                                                     ['type'] ==
                                                 "image"
-                                            ? GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) {
-                                                    return ImageMessage(
-                                                        url: snapshot
-                                                                .data.documents[
-                                                            index]['url']);
-                                                  }));
-                                                },
-                                                child: Hero(
+                                            ? OpenContainer(
+                                                transitionDuration:
+                                                    Duration(milliseconds: 500),
+                                                openBuilder:
+                                                    (context, action) =>
+                                                        ImageMessage(
+                                                            url: snapshot.data
+                                                                    .documents[
+                                                                index]['url']),
+                                                closedBuilder:
+                                                    (context, action) => Hero(
                                                   tag: snapshot.data
                                                       .documents[index]['url'],
                                                   child: Container(
+                                                    constraints: BoxConstraints(
+                                                        maxHeight: 150),
                                                     child: cachedNetworkimage(
                                                         snapshot.data.documents[
                                                             index]['url']),
@@ -433,10 +502,16 @@ class _ChatScreenState extends State<ChatScreen> {
                                                 ? buildAudioPlayerInChat(
                                                     snapshot: snapshot,
                                                     index: index)
-                                                : buildLocationShowInChat(
-                                                    snapshot: snapshot,
-                                                    index: index,
-                                                  ),
+                                                : snapshot.data.documents[index]
+                                                            ['type'] ==
+                                                        'location'
+                                                    ? buildLocationShowInChat(
+                                                        snapshot: snapshot,
+                                                        index: index,
+                                                      )
+                                                    : buildVideoPlayerinChat(
+                                                        snapshot: snapshot,
+                                                        index: index),
                                     Align(
                                       alignment: Alignment.bottomRight,
                                       child: Padding(
@@ -468,8 +543,9 @@ class _ChatScreenState extends State<ChatScreen> {
                           Align(
                             alignment: Alignment.bottomLeft,
                             child: Container(
-                              padding: EdgeInsets.only(left: 10),
+                              padding: EdgeInsets.only(left: 10, top: 5),
                               child: CircleAvatar(
+                                  radius: 12,
                                   backgroundImage: CachedNetworkImageProvider(
                                       widget.selectedUser.photoUrl)),
                             ),
@@ -481,7 +557,6 @@ class _ChatScreenState extends State<ChatScreen> {
                       );
               },
               itemCount: snapshot.data.documents.length,
-              reverse: true,
             );
           },
         ),
@@ -672,7 +747,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final path = tempDir.path;
     Im.Image image = Im.decodeImage(file.readAsBytesSync());
     final compressedImage = File("$path/img_$postId.jpg")
-      ..writeAsBytesSync(Im.encodeJpg(image, quality: 50));
+      ..writeAsBytesSync(Im.encodeJpg(image, quality: 80));
     setState(() {
       file = compressedImage;
     });
@@ -945,8 +1020,8 @@ class _ChatScreenState extends State<ChatScreen> {
           alignment: Alignment.bottomRight,
           children: <Widget>[
             Slider(
-              activeColor: Colors.white,
-              inactiveColor: Colors.blue,
+              activeColor: Colors.black,
+              inactiveColor: Colors.black12,
               value: _position[index].inMicroseconds.toDouble(),
               min: 0.0,
               max: _duration[index].inMicroseconds.toDouble(),
@@ -1006,5 +1081,180 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
     );
+  }
+
+  Widget buildVideoPlayerinChat({var snapshot, int index}) {
+    if (snapshot.data.documents[index]['url'] == "") {
+      return Container(
+        constraints: BoxConstraints(maxHeight: 150),
+        child: Center(
+          child: Padding(
+            padding: EdgeInsets.only(top: 30),
+            child: Container(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 1)),
+          ),
+        ),
+      );
+    }
+    return Container(
+      constraints: BoxConstraints(maxHeight: 150),
+      child: Stack(
+        children: <Widget>[
+          Container(
+              constraints: BoxConstraints(maxHeight: 150),
+              child: cachedNetworkimage(
+                  snapshot.data.documents[index]['thumbnailUrl'])),
+          Align(
+              alignment: Alignment.center,
+              child: OpenContainer(
+                closedShape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30)),
+                transitionDuration: Duration(milliseconds: 500),
+                openBuilder: (context, action) => VideoScreen(
+                  videoUrl: snapshot.data.documents[index]['url'],
+                  thumbnailUrl: snapshot.data.documents[index]['thumbnailUrl'],
+                ),
+                closedBuilder: (context, action) => Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: Icon(
+                    Icons.play_circle_filled,
+                    size: 40,
+                    color: Colors.black54,
+                  ),
+                ),
+              ))
+        ],
+      ),
+    );
+  }
+
+  void sendVideo(File file) async {
+    String postId = DateTime.now().millisecondsSinceEpoch.toString();
+    if (file != null) {
+      Firestore.instance
+          .collection('chats')
+          .document(widget.currentUser.id)
+          .collection('userChats')
+          .document(chatId)
+          .collection('chats')
+          .document(postId)
+          .setData({
+        "sender": widget.currentUser.id,
+        "receiver": widget.selectedUser.id,
+        "timestamp": DateTime.now(),
+        "url": "",
+        "type": "video"
+      });
+      DocumentSnapshot docSnapshot = await Firestore.instance
+          .collection('chattingWith')
+          .document(widget.selectedUser.id)
+          .get();
+      if (docSnapshot['id'] != widget.currentUser.id) {
+        Firestore.instance
+            .collection('unreadChats')
+            .document(widget.selectedUser.id)
+            .collection('unreadchats')
+            .document(chatId)
+            .collection(chatId)
+            .add({"message": "sent a video", "timestamp": DateTime.now()});
+      }
+      Firestore.instance
+          .collection('chats')
+          .document(widget.currentUser.id)
+          .collection('userChats')
+          .document(chatId)
+          .setData({
+        "id": widget.selectedUser.id,
+        "bio": widget.selectedUser.bio,
+        "displayName": widget.selectedUser.displayName,
+        "username": widget.selectedUser.username,
+        "photoUrl": widget.selectedUser.photoUrl,
+        "lastMessage": "You: sent a video",
+        "chatId": chatId
+      });
+      Firestore.instance
+          .collection('chats')
+          .document(widget.selectedUser.id)
+          .collection('userChats')
+          .document(chatId)
+          .collection('chats')
+          .document(postId)
+          .setData({
+        "sender": widget.currentUser.id,
+        "receiver": widget.selectedUser.id,
+        "timestamp": DateTime.now(),
+        "url": "",
+        "type": "video"
+      });
+      Firestore.instance
+          .collection('chats')
+          .document(widget.selectedUser.id)
+          .collection('userChats')
+          .document(chatId)
+          .setData({
+        "id": widget.currentUser.id,
+        "bio": widget.currentUser.bio,
+        "displayName": widget.currentUser.displayName,
+        "username": widget.currentUser.username,
+        "photoUrl": widget.currentUser.photoUrl,
+        "lastMessage": "${widget.currentUser.displayName}: sent a video",
+        "chatId": chatId
+      });
+      final bytes = await VideoThumbnail.thumbnailData(
+        video: file.path,
+      );
+      StorageUploadTask uploadTask =
+          FirebaseStorage.instance.ref().child("message_$postId").putFile(file);
+      StorageTaskSnapshot snapshot = await uploadTask.onComplete;
+      String url = await snapshot.ref.getDownloadURL();
+      print(url);
+      StorageUploadTask uploadTaskthumbnail = FirebaseStorage.instance
+          .ref()
+          .child("thumbnail_$postId")
+          .putData(bytes);
+      StorageTaskSnapshot snapshotthumbnail =
+          await uploadTaskthumbnail.onComplete;
+      String thumbnailUrl = await snapshotthumbnail.ref.getDownloadURL();
+      createVideoMessageinFirestore(
+          url: url, postId: postId, thumbnailUrl: thumbnailUrl);
+    }
+  }
+
+  void createVideoMessageinFirestore(
+      {String url, String postId, String thumbnailUrl}) {
+    if (chatId != null) {
+      Firestore.instance
+          .collection('chats')
+          .document(widget.currentUser.id)
+          .collection('userChats')
+          .document(chatId)
+          .collection('chats')
+          .document(postId)
+          .setData({
+        "sender": widget.currentUser.id,
+        "receiver": widget.selectedUser.id,
+        "timestamp": DateTime.now(),
+        "url": url,
+        "type": "video",
+        "thumbnailUrl": thumbnailUrl
+      });
+      Firestore.instance
+          .collection('chats')
+          .document(widget.selectedUser.id)
+          .collection('userChats')
+          .document(chatId)
+          .collection('chats')
+          .document(postId)
+          .setData({
+        "sender": widget.currentUser.id,
+        "receiver": widget.selectedUser.id,
+        "timestamp": DateTime.now(),
+        "url": url,
+        "type": "video",
+        "thumbnailUrl": thumbnailUrl
+      });
+    }
   }
 }

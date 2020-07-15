@@ -1,12 +1,13 @@
 import 'dart:io';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:autostart/autostart.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
@@ -16,11 +17,14 @@ import 'package:socialnetworking/Page/Profile.dart';
 import 'package:socialnetworking/Page/Timeline.dart';
 import 'package:socialnetworking/Page/Upload.dart';
 import 'package:socialnetworking/Widgets/colors.dart';
-
+import 'package:socialnetworking/Widgets/custom_image.dart';
+import 'package:socialnetworking/main.dart';
 import 'Search.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class Home extends StatefulWidget {
+  var cameras;
+  Home({this.cameras});
   @override
   _HomeState createState() => _HomeState();
 }
@@ -77,13 +81,13 @@ class _HomeState extends State<Home> {
             actions: <Widget>[
               FlatButton(
                 child: Text("Cancel"),
-                onPressed: (){
+                onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
               FlatButton(
                 child: Text("Okay"),
-                onPressed: () async{
+                onPressed: () async {
                   Navigator.of(context).pop();
                   Autostart.getAutoStartPermission();
                   await sharedPreferences.setBool('isAutoStartGiven', true);
@@ -91,7 +95,6 @@ class _HomeState extends State<Home> {
               ),
             ],
           ));
-      
     }
   }
 
@@ -116,9 +119,7 @@ class _HomeState extends State<Home> {
       backgroundColor: colors.mainBackgroundColor,
       body: PageView(
         children: <Widget>[
-          Timeline(
-            currentuser: currentUser,
-          ),
+          Timeline(currentuser: currentUser, cameras: widget.cameras),
           ActivityFeed(),
           Upload(
             currentUser: currentUser,
@@ -132,19 +133,33 @@ class _HomeState extends State<Home> {
         onPageChanged: onPageChanged,
         physics: NeverScrollableScrollPhysics(),
       ),
-      bottomNavigationBar: CupertinoTabBar(
-        currentIndex: pageIndex,
+      bottomNavigationBar: CurvedNavigationBar(
         onTap: onTap,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.whatshot)),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications_active)),
-          BottomNavigationBarItem(
-              icon: Icon(
+        color: Colors.grey[200],
+        buttonBackgroundColor: Colors.grey[300],
+        backgroundColor: Colors.white,
+        height: 50,
+        items: <Widget>[
+          Icon(
+            Icons.whatshot,
+            size: 30,
+          ),
+          Icon(
+            Icons.notifications_active,
+            size: 30,
+          ),
+          Icon(
             Icons.photo_camera,
-            size: 35,
-          )),
-          BottomNavigationBarItem(icon: Icon(Icons.search)),
-          BottomNavigationBarItem(icon: Icon(Icons.person)),
+            size: 30,
+          ),
+          Icon(
+            Icons.search,
+            size: 30,
+          ),
+          CircleAvatar(
+            radius: 15,
+            backgroundImage: CachedNetworkImageProvider(currentUser.photoUrl),
+          )
         ],
       ),
     );
@@ -254,8 +269,7 @@ class _HomeState extends State<Home> {
         onLaunch: (Map<String, dynamic> message) async {},
         onResume: (Map<String, dynamic> message) async {},
         onMessage: (Map<String, dynamic> message) async {
-          AudioCache audioCache=AudioCache();
-          audioCache.play('sounds/swiftly.mp3',isNotification: true);
+          showNotification(message);
         },
       );
     });
@@ -271,16 +285,35 @@ class _HomeState extends State<Home> {
 
   void showNotification(Map<String, dynamic> message) async {
     print("Notification Shown");
+    print(message);
+    List<String> lines = message['notification']['body'].toString().split('\n');
+    InboxStyleInformation inboxStyleInformation = InboxStyleInformation(
+      lines,
+    );
     var android = new AndroidNotificationDetails(
         'channel Id', 'channel Name', 'description',
         importance: Importance.Max,
         priority: Priority.High,
         playSound: true,
+        styleInformation: inboxStyleInformation,
         ticker: 'ticker',
         enableLights: true);
     var ios = new IOSNotificationDetails();
     var platform = new NotificationDetails(android, ios);
-    await flutterLocalNotificationsPlugin.show(
-        0, "Alert", message['notification']['body'], platform);
+    Firestore.instance
+        .collection('chattingWith')
+        .document(currentUser.id)
+        .get()
+        .then((value) async {
+      if (value.data['id'] != message['data']['senderId']) {
+        await flutterLocalNotificationsPlugin.show(
+            int.parse(message['data']['senderId'].toString().substring(2, 5)),
+            message['notification']['title'] == "New Message"
+                ? "New Message"
+                : "Alert",
+            message['notification']['body'],
+            platform);
+      }
+    });
   }
 }
