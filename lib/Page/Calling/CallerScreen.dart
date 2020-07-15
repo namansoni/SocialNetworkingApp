@@ -9,7 +9,6 @@ import 'package:socialnetworking/Page/Home.dart';
 import 'package:socialnetworking/Utils/setting.dart';
 import 'package:socialnetworking/Methods/CallMethods.dart';
 
-
 class CallerPage extends StatefulWidget {
   final Call call;
   final UserModel currentUser;
