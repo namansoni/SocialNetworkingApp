@@ -7,7 +7,8 @@ class UserModel{
   final String photoUrl;
   final String displayName;
   final String bio;
-  UserModel({this.username,this.photoUrl,this.displayName,this.email,this.id,this.bio});
+  final bool isPrivate;
+  UserModel({this.username,this.photoUrl,this.displayName,this.email,this.id,this.bio,this.isPrivate});
 
   factory UserModel.fromDocument(DocumentSnapshot doc){
     return UserModel(
@@ -17,6 +18,7 @@ class UserModel{
       email: doc['email'],
       photoUrl: doc['photoUrl'],
       username: doc['username'],
+      isPrivate: doc['isPrivate']
     );
   }
 }

@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
 import 'package:image/image.dart' as Im;
+import 'Calling/pickup_layout.dart';
 
 class Upload extends StatefulWidget {
   UserModel currentUser;
@@ -25,7 +26,9 @@ class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Uplo
   String postId = DateTime.now().millisecondsSinceEpoch.toString();
   @override
   Widget build(BuildContext context) {
-    return imageFile == null ? buildUploadImage() : buildUploadForm();
+    return PickupLayout(
+      currentUser: widget.currentUser,
+      scaffold: imageFile == null ? buildUploadImage() : buildUploadForm());
   }
 
   Widget buildUploadImage() {

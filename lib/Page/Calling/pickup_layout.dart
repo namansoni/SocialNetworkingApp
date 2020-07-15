@@ -14,7 +14,7 @@ class PickupLayout extends StatelessWidget {
   final UserModel currentUser;
   PickupLayout({@required this.scaffold,@required this.currentUser});
   @override
- Widget build(BuildContext context) {
+  Widget build(BuildContext context) {
 
     return StreamBuilder<DocumentSnapshot>(
       stream:  callMethods.callStream(uid: currentUser.id ),
@@ -40,3 +40,5 @@ class PickupLayout extends StatelessWidget {
     );
   }
 }
+
+

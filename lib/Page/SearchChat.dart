@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
 import 'package:socialnetworking/Page/ChatScreen.dart';
 import 'package:socialnetworking/Widgets/colors.dart';
+import 'Calling/pickup_layout.dart';
 
 class SearchChat extends StatefulWidget {
   UserModel currentUser;
@@ -26,7 +27,9 @@ class _SearchChatState extends State<SearchChat> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PickupLayout(
+      currentUser: widget.currentUser,
+     scaffold: Scaffold(
       backgroundColor: colors.mainBackgroundColor,
       body: SingleChildScrollView(
         child: Column(
@@ -100,6 +103,7 @@ class _SearchChatState extends State<SearchChat> {
           ],
         ),
       ),
+     ),
     );
   }
 

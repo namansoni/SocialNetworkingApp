@@ -55,36 +55,13 @@ class _CallerPageState extends State<CallerPage> {
 
   @override
   Widget build(BuildContext context) {
-    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
-      callStreamSubscription=callMethods.callStream(uid: widget.currentUser.id).listen((DocumentSnapshot ds) {
-        switch (ds.data){
-          case null:
-            Navigator.push(context, MaterialPageRoute(builder: (context) => Home(),));
-            break;
-          default:
-            return Scaffold(
-              backgroundColor: Colors.black,
-              body: Center(
-                child: Stack(
-                  children: <Widget>[
-                    _viewRows(),
-                    _panel(),
-                    _toolbar(context),
-                  ],
-                ),
-              ),
-            );
-            break;
-        }
-      });
-    });
     return Scaffold(
       backgroundColor: Colors.black,
       body: Center(
         child: Stack(
           children: <Widget>[
             _viewRows(),
-            _panel(),
+            //_panel(),
             _toolbar(context),
           ],
         ),

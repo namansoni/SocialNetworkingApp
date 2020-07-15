@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:socialnetworking/Widgets/post.dart';
+import 'Calling/pickup_layout.dart';
+import 'Home.dart';
+
 class PostScreen extends StatefulWidget {
   final String postId;
   final String userId;
@@ -14,7 +17,9 @@ class _PostScreenState extends State<PostScreen> {
   Widget build(BuildContext context) {
     print(widget.postId);
     print(widget.userId);
-    return Scaffold(
+    return PickupLayout(
+      currentUser: currentUser,
+      scaffold: Scaffold(
       appBar: AppBar(
         leading: IconButton(
           color: Colors.black,
@@ -49,6 +54,6 @@ class _PostScreenState extends State<PostScreen> {
           );
         },
       ),
-    );
+    ),);
   }
 }
