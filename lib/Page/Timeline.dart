@@ -12,7 +12,7 @@ import 'package:socialnetworking/Page/Home.dart';
 import 'package:socialnetworking/Widgets/colors.dart';
 import 'package:socialnetworking/Widgets/post.dart';
 import 'package:socialnetworking/main.dart';
-
+import 'Calling/pickup_layout.dart';
 import 'Profile.dart';
 
 class Timeline extends StatefulWidget {
@@ -97,7 +97,9 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PickupLayout(
+      currentUser: widget.currentUser,
+      scaffold: Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(
@@ -146,7 +148,7 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
       body: RefreshIndicator(
         backgroundColor: Colors.white,
           onRefresh: () => getUserTimeline(), child: buildTimeline()),
-    );
+    ),);
   }
 
   buildTimeline() {
