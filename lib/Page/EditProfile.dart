@@ -23,6 +23,7 @@ class _EditProfileState extends State<EditProfile> {
   bool displayNameValid = true;
   bool usernameValid = true;
   bool bioValid = true;
+  bool _checked;
   final scaffoldKey = GlobalKey<ScaffoldState>();
   @override
   void initState() {
@@ -43,6 +44,7 @@ class _EditProfileState extends State<EditProfile> {
       bioController.text = user.bio;
       currentUser = user;
       isLoading = false;
+      _checked=user.isPrivate;
     });
   }
 
@@ -95,8 +97,18 @@ class _EditProfileState extends State<EditProfile> {
               border: OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(10)))),
         ),
+        CheckboxListTile(
+          title: Text(
+            "Private Account",
+          ),
+          value: _checked,
+          controlAffinity: ListTileControlAffinity.leading,
+          onChanged: (bool value){ setState(() {
+            _checked=value;
+          });},
+        ),
         SizedBox(
-          height: 10,
+          height: 5,
         ),
         GestureDetector(
           onTap: logout,
@@ -174,6 +186,7 @@ class _EditProfileState extends State<EditProfile> {
         "displayName": displayNameController.text,
         "username": userNameController.text,
         "bio": bioController.text,
+        'isPrivate': _checked,
       });
       SnackBar snackBar = SnackBar(
         content: Text("Profile Updated.."),
