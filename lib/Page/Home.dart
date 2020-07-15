@@ -21,6 +21,7 @@ import 'package:socialnetworking/Widgets/custom_image.dart';
 import 'package:socialnetworking/main.dart';
 import 'Search.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'Calling/pickup_layout.dart';
 
 class Home extends StatefulWidget {
   var cameras;
@@ -111,7 +112,7 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return isAuth ? AuthenticatedWidget() : UnauthenticatedWidget();
+    return isAuth ? PickupLayout(scaffold:AuthenticatedWidget(),currentUser: currentUser,) : UnauthenticatedWidget();
   }
 
   Widget AuthenticatedWidget() {
