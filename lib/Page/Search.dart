@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:socialnetworking/Models/UserModel.dart';
 import 'package:socialnetworking/Page/Home.dart';
 import 'package:socialnetworking/Widgets/colors.dart';
-import 'Calling/pickup_layout.dart'
+import 'Calling/pickup_layout.dart';
 import 'Profile.dart';
 
 class Search extends StatefulWidget {
