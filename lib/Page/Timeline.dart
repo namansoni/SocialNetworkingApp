@@ -14,6 +14,7 @@ import 'package:socialnetworking/Widgets/post.dart';
 import 'package:socialnetworking/main.dart';
 import 'Calling/pickup_layout.dart';
 import 'Profile.dart';
+import 'Calling/pickup_layout.dart';
 
 class Timeline extends StatefulWidget {
   UserModel currentuser;
