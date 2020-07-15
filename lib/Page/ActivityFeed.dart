@@ -5,6 +5,7 @@ import 'package:socialnetworking/Page/Home.dart';
 import 'package:socialnetworking/Page/Profile.dart';
 import 'package:socialnetworking/Page/post_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:socialnetworking/Page/Calling/pickup_layout.dart';
 
 class ActivityFeed extends StatefulWidget {
   @override
@@ -14,16 +15,19 @@ class ActivityFeed extends StatefulWidget {
 class _ActivityFeedState extends State<ActivityFeed> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        title: Text(
-          "Activity Feed",
-          style: TextStyle(color: Colors.black),
+    return PickupLayout(
+      currentUser: currentUser,
+      scaffold: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: Colors.white,
+          title: Text(
+            "Activity Feed",
+            style: TextStyle(color: Colors.black),
+          ),
         ),
+        body: buildActivityFeed(),
       ),
-      body: buildActivityFeed(),
     );
   }
 
