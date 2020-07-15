@@ -25,7 +25,9 @@ class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Uplo
   String postId = DateTime.now().millisecondsSinceEpoch.toString();
   @override
   Widget build(BuildContext context) {
-    return imageFile == null ? buildUploadImage() : buildUploadForm();
+    return PickupLayout(
+      currentUser: widget.currentUser,
+      scaffold: imageFile == null ? buildUploadImage() : buildUploadForm());
   }
 
   Widget buildUploadImage() {
