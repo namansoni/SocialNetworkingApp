@@ -66,6 +66,29 @@ class _CallerPageState extends State<CallerPage> {
           ],
         ),
       ),
+    );verride
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+      stream: Firestore.instance.collection('call').document(currentUser.id).snapshots(),
+      builder: (context,snapshot)
+      {
+        if(!snapshot.hasData){
+        }
+        else{
+          return Scaffold(
+            backgroundColor: Colors.black,
+            body: Center(
+              child: Stack(
+                children: <Widget>[
+                  _viewRows(),
+                  _panel(),
+                  _toolbar(context),
+                ],
+              ),
+            ),
+          );
+        }
+        },
     );
   }
 
