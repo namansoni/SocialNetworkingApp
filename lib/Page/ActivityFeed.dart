@@ -6,6 +6,7 @@ import 'package:socialnetworking/Page/Profile.dart';
 import 'package:socialnetworking/Page/post_screen.dart';
 import 'package:timeago/timeago.dart' as timeago;
 import 'package:socialnetworking/Page/Calling/pickup_layout.dart';
+import 'package:socialnetworking/Page/FollowRequests.dart';
 
 class ActivityFeed extends StatefulWidget {
   @override
@@ -42,9 +43,9 @@ class _ActivityFeedState extends State<ActivityFeed> {
         if (!snapshot.hasData) {
           return Container(
             child: Center(child: Container(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator())),
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator())),
           );
         }
         if (snapshot.hasError) {
@@ -53,9 +54,50 @@ class _ActivityFeedState extends State<ActivityFeed> {
           );
         }
         return ListView.builder(
-          itemCount: snapshot.data.documents.length,
+          itemCount: snapshot.data.documents.length+1,
           itemBuilder: (context, index) {
-            if (snapshot.data.documents[index]['type'] != 'follow') {
+            if(index==0){
+              return Container(
+                margin: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 5.0),
+                child: GestureDetector(
+                  onTap: (){
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (ctx) => FollowRequests()
+                        )
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: new BorderRadius.circular(20.0),
+                      color: Color(0xFF96ED89),
+                      boxShadow: [
+                        new BoxShadow(
+                            color: Color(0xF0737373),
+                            blurRadius: 3.0,
+                            offset: new Offset(1.0, 1.0)
+                        )
+                      ],
+                    ),
+                    child: ListTile(
+                      title: RichText(
+                        text: TextSpan(
+                            text: "Follow Requests",
+                            style: TextStyle(
+                              fontSize: 20.0,
+                              fontStyle: FontStyle.italic,
+                              fontWeight: FontWeight.bold,
+                            )
+                        ),
+                      ),
+                      trailing: Icon(Icons.arrow_forward_ios,size: 25.0,),
+                    ),
+                  ),
+                ),
+              );
+            }
+            if (snapshot.data.documents[index-1]['type'] != 'follow' && snapshot.data.documents[index-1]['type'] != 'accepted') {
               return ListTile(
                 leading: GestureDetector(
                   onTap: () {
@@ -63,13 +105,13 @@ class _ActivityFeedState extends State<ActivityFeed> {
                         context,
                         MaterialPageRoute(
                             builder: (ctx) => Profile(
-                                  profileId: snapshot.data.documents[index]
-                                      ['userId'],
-                                )));
+                              profileId: snapshot.data.documents[index-1]
+                              ['userId'],
+                            )));
                   },
                   child: CircleAvatar(
                     backgroundImage: CachedNetworkImageProvider(
-                        snapshot.data.documents[index]['userProfileImage']),
+                        snapshot.data.documents[index-1]['userProfileImage']),
                   ),
                 ),
                 title: Column(
@@ -80,26 +122,26 @@ class _ActivityFeedState extends State<ActivityFeed> {
                       overflow: TextOverflow.ellipsis,
                       text: TextSpan(children: [
                         TextSpan(
-                            text: snapshot.data.documents[index]['username'],
+                            text: snapshot.data.documents[index-1]['username'],
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black)),
                         TextSpan(
-                            text: snapshot.data.documents[index]['type'] ==
-                                    "comment"
+                            text: snapshot.data.documents[index-1]['type'] ==
+                                "comment"
                                 ? " commented "
                                 : " liked your post",
                             style: TextStyle(color: Colors.grey))
                       ]),
                     ),
-                    snapshot.data.documents[index]['type'] == "comment"
+                    snapshot.data.documents[index-1]['type'] == "comment"
                         ? RichText(
-                            overflow: TextOverflow.ellipsis,
-                            text: TextSpan(
-                              style: TextStyle(color: Colors.grey),
-                              text: snapshot.data.documents[index]['comment'],
-                            ),
-                          )
+                      overflow: TextOverflow.ellipsis,
+                      text: TextSpan(
+                        style: TextStyle(color: Colors.grey),
+                        text: snapshot.data.documents[index-1]['comment'],
+                      ),
+                    )
                         : Container()
                   ],
                 ),
@@ -109,19 +151,19 @@ class _ActivityFeedState extends State<ActivityFeed> {
                         context,
                         MaterialPageRoute(
                             builder: (ctx) => PostScreen(
-                                  postId: snapshot.data.documents[index]
-                                      ['postId'],
-                                  userId: currentUser.id,
-                                )));
+                              postId: snapshot.data.documents[index-1]
+                              ['postId'],
+                              userId: currentUser.id,
+                            )));
                   },
                   child: Container(
                       width: 50,
                       height: 50,
                       child: Image.network(
-                          snapshot.data.documents[index]['mediaUrl'])),
+                          snapshot.data.documents[index-1]['mediaUrl'])),
                 ),
                 subtitle: Text(timeago.format(
-                    snapshot.data.documents[index]['timestamp'].toDate())),
+                    snapshot.data.documents[index-1]['timestamp'].toDate())),
               );
             }
             return ListTile(
@@ -131,25 +173,28 @@ class _ActivityFeedState extends State<ActivityFeed> {
                       context,
                       MaterialPageRoute(
                           builder: (ctx) => Profile(
-                                profileId: snapshot.data.documents[index]
-                                    ['userId'],
-                              )));
+                            profileId: snapshot.data.documents[index-1]
+                            ['userId'],
+                          )));
                 },
                 child: CircleAvatar(
                   backgroundImage: CachedNetworkImageProvider(
-                      snapshot.data.documents[index]['userProfileImage']),
+                      snapshot.data.documents[index-1]['userProfileImage']),
                 ),
               ),
               title: RichText(
                 overflow: TextOverflow.ellipsis,
                 text: TextSpan(children: [
                   TextSpan(
-                    text: snapshot.data.documents[index]['username'],
+                    text: snapshot.data.documents[index-1]['username'],
                     style: TextStyle(
                         fontWeight: FontWeight.bold, color: Colors.black),
                   ),
                   TextSpan(
-                      text: "  started following you",
+                      text: snapshot.data.documents[index-1]['type'] ==
+                          "follow"
+                          ? " started following you "
+                          : " accepted your follow request",
                       style: TextStyle(color: Colors.grey))
                 ]),
               ),
@@ -157,7 +202,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
                 overflow: TextOverflow.ellipsis,
                 text: TextSpan(
                     text: timeago.format(
-                        snapshot.data.documents[index]['timestamp'].toDate()),
+                        snapshot.data.documents[index-1]['timestamp'].toDate()),
                     style: TextStyle(color: Colors.grey)),
               ),
             );
