@@ -131,29 +131,6 @@ class _ProfileState extends State<Profile> {
         ),
       ),
       body: RefreshIndicator(
-<<<<<<< HEAD
-        onRefresh: () {
-          setState(() {});
-          return Future.value(false);
-        },
-        child: ListView(
-          shrinkWrap: true,
-          children: <Widget>[
-            Container(
-                height: MediaQuery.of(context).size.height * 0.28,
-                width: MediaQuery.of(context).size.width,
-                child: buildProfileHeader()),
-            buildTogglePostOrientation(),
-            Divider(
-              height: 2.0,
-            ),
-            Container(
-              height: MediaQuery.of(context).size.height * 0.53,
-              width: double.infinity,
-              child: buildProfilePosts(),
-            ),
-          ],
-=======
         onRefresh: (){
           setState(() { });
           return Future.value(false);},
@@ -175,7 +152,6 @@ class _ProfileState extends State<Profile> {
             return buildWidget();
           },
 
->>>>>>> 2abb79db334a5fb399e21e5f4e86d0ccff4b1118
         ),
       ),
     );
