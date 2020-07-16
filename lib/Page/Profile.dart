@@ -138,6 +138,17 @@ class _ProfileState extends State<Profile> {
         child: StreamBuilder(
           stream: Firestore.instance.collection('users').document(widget.profileId).snapshots(),
           builder: (context,snapshot){
+            if (!snapshot.hasData) {
+              return Card(
+                elevation: 6,
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            if (snapshot.hasError) {
+              return Card(
+                child: Text("No data found"),
+              );
+            }
             setState(() {
               isPrivate=snapshot.data.data['isPrivate']==null?false:snapshot.data.data['isPrivate'];
             });
