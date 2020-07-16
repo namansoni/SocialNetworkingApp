@@ -27,6 +27,9 @@ class _ProfileState extends State<Profile> {
   String postOrientation = "grid";
   List<Post> posts = [];
   bool isFollowing = false;
+  bool hasRequested =false;
+  bool isPrivate = true;
+
 
   FutureBuilder buildProfileHeader() {
     return FutureBuilder(
@@ -39,6 +42,7 @@ class _ProfileState extends State<Profile> {
           return Text("No data found");
         } else {
           UserModel user = UserModel.fromDocument(snapshot.data);
+          isPrivate=user.isPrivate;
           return Container(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -55,7 +59,7 @@ class _ProfileState extends State<Profile> {
                           padding: const EdgeInsets.only(right: 50),
                           child: CircleAvatar(
                             backgroundImage:
-                                CachedNetworkImageProvider(user.photoUrl),
+                            CachedNetworkImageProvider(user.photoUrl),
                             radius: 40,
                           ),
                         ),
@@ -128,32 +132,97 @@ class _ProfileState extends State<Profile> {
         backgroundColor: Colors.white,
       ),
       body: RefreshIndicator(
-        onRefresh: () {
-          setState(() {});
-          return Future.value(false);
-        },
-        child: ListView(
-          shrinkWrap: true,
-          children: <Widget>[
-            Container(
-                color: colors.mainBackgroundColor,
-                height: MediaQuery.of(context).size.height * 0.28,
-                width: MediaQuery.of(context).size.width,
-                child: buildProfileHeader()),
-            buildTogglePostOrientation(),
-            Divider(
-              height: 2.0,
-            ),
-            Container(
-              color: colors.mainBackgroundColor,
-              height: MediaQuery.of(context).size.height * 0.53,
-              width: double.infinity,
-              child: buildProfilePosts(),
-            ),
-          ],
+        onRefresh: (){
+          setState(() { });
+          return Future.value(false);},
+        child: StreamBuilder(
+          stream: Firestore.instance.collection('users').document(widget.profileId).snapshots(),
+          builder: (context,snapshot){
+            setState(() {
+              isPrivate=snapshot.data.data['isPrivate']==null?false:snapshot.data.data['isPrivate'];
+            });
+            return buildWidget();
+          },
+
         ),
       ),
     );
+  }
+
+  Widget buildWidget()
+  {
+    if(isPrivate && !isFollowing && widget.profileId!=currentUser.id){
+      return ListView(
+        shrinkWrap: true,
+        children: <Widget>[
+          Container(
+              height: MediaQuery.of(context).size.height * 0.28,
+              width: MediaQuery.of(context).size.width,
+              child: buildProfileHeader()),
+          Divider(
+            height: 2.0,
+          ),
+          Container(
+            margin: EdgeInsets.fromLTRB(10.0,15.0,5.0,0.0),
+            height: MediaQuery
+                .of(context)
+                .size
+                .height * 0.10,
+            width: double.infinity,
+            child: Row(
+              children: <Widget>[
+                Icon(Icons.lock_outline,size: 50.0,),
+                SizedBox(width: 20.0,),
+                Column(
+                  children: <Widget>[
+                    Text(
+                      'This Account is Private',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20.0
+                      ),
+                    ),
+                    Text(
+                      'Follow This Account to see their posts.',
+                      style: TextStyle(
+                          fontSize: 15.0
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Divider(
+            height: 2.0,
+          ),
+        ],
+      );
+    }
+    else{
+      return ListView(
+        shrinkWrap: true,
+        children: <Widget>[
+          Container(
+              height: MediaQuery.of(context).size.height * 0.28,
+              width: MediaQuery.of(context).size.width,
+              child: buildProfileHeader()
+          ),
+          buildTogglePostOrientation(),
+          Divider(
+            height: 2.0,
+          ),
+          Container(
+            height: MediaQuery
+                .of(context)
+                .size
+                .height * 0.53,
+            width: double.infinity,
+            child: buildProfilePosts(),
+          ),
+        ],
+      );
+    }
   }
 
   Column buildCountColumn({String postCount}) {
@@ -211,14 +280,14 @@ class _ProfileState extends State<Profile> {
         height: 30,
         decoration: BoxDecoration(
             border: Border.all(
-                color: isFollowing ? Colors.grey : Colors.blueAccent),
-            color: isFollowing ? Colors.white : Colors.blue,
+                color: isFollowing || hasRequested? Colors.grey : Colors.blueAccent),
+            color: isFollowing ?Colors.white : ( hasRequested?Colors.grey.shade200:Colors.blue),
             borderRadius: BorderRadius.all(Radius.circular(8))),
         child: Center(
             child: Text(
-          text,
-          style: TextStyle(color: isFollowing ? Colors.black : Colors.white),
-        )),
+              text,
+              style: TextStyle(color: isFollowing ? Colors.black : hasRequested?Colors.grey.shade700: Colors.white),
+            )),
       ),
     );
   }
@@ -228,8 +297,8 @@ class _ProfileState extends State<Profile> {
         context,
         MaterialPageRoute(
             builder: (ctx) => EditProfile(
-                  currentUserId: currentUser.id,
-                )));
+              currentUserId: currentUser.id,
+            )));
   }
 
   buildEditProfile() {
@@ -238,40 +307,74 @@ class _ProfileState extends State<Profile> {
     } else {
       return isFollowing
           ? buildButton(text: "Unfollow", function: unFollowaUser)
-          : buildButton(text: "Follow", function: followaUser);
+          : (isPrivate && hasRequested)
+          ? buildButton(text: "Requested", function: requestedAction):
+            buildButton(text: "Follow", function: followaUser);
     }
   }
 
   void followaUser() {
-    setState(() {
-      isFollowing = true;
-      followersCount = followersCount + 1;
-    });
-    Firestore.instance
-        .collection('Followers')
-        .document(widget.profileId)
-        .collection('usersFollower')
-        .document(currentUser.id)
-        .setData({});
-    Firestore.instance
-        .collection('Following')
-        .document(currentUser.id)
-        .collection('usersFollowing')
-        .document(widget.profileId)
-        .setData({});
-    Firestore.instance
-        .collection('feed')
-        .document(widget.profileId)
-        .collection('feedItems')
-        .document(currentUser.id)
-        .setData({
-      "type": "follow",
-      "ownerId": widget.profileId,
-      "username": currentUser.username,
-      "userId": currentUser.id,
-      "userProfileImage": currentUser.photoUrl,
-      "timestamp": DateTime.now()
-    });
+    if(!isPrivate)
+    {
+      setState(() {
+        isFollowing = true;
+        followersCount = followersCount + 1;
+      });
+      Firestore.instance
+          .collection('Followers')
+          .document(widget.profileId)
+          .collection('usersFollower')
+          .document(currentUser.id)
+          .setData({});
+      Firestore.instance
+          .collection('Following')
+          .document(currentUser.id)
+          .collection('usersFollowing')
+          .document(widget.profileId)
+          .setData({});
+      Firestore.instance
+          .collection('feed')
+          .document(widget.profileId)
+          .collection('feedItems')
+          .document(currentUser.id)
+          .setData({
+        "type": "follow",
+        "ownerId": widget.profileId,
+        "username": currentUser.username,
+        "userId": currentUser.id,
+        "userProfileImage": currentUser.photoUrl,
+        "timestamp": DateTime.now()
+      });
+    }
+    else{
+      setState(() {
+        hasRequested=true;
+      });
+      Firestore.instance
+          .collection('Followers')
+          .document(widget.profileId)
+          .collection('followRequests')
+          .document(currentUser.id)
+          .setData({
+        "ownerId": widget.profileId,
+        "username": currentUser.username,
+        "userId": currentUser.id,
+        "userProfileImage": currentUser.photoUrl,
+        "timestamp": DateTime.now()
+      });
+      Firestore.instance
+          .collection('Following')
+          .document(currentUser.id)
+          .collection('Requested')
+          .document(widget.profileId)
+          .setData({
+        "ownerId": widget.profileId,
+        "username": currentUser.username,
+        "userId": currentUser.id,
+        "userProfileImage": currentUser.photoUrl,
+        "timestamp": DateTime.now()
+      });
+    }
   }
 
   void unFollowaUser() {
@@ -306,6 +409,34 @@ class _ProfileState extends State<Profile> {
         .document(widget.profileId)
         .collection('feedItems')
         .document(currentUser.id)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+  }
+  requestedAction()
+  {
+    setState(() {
+      hasRequested=false;
+    });
+    Firestore.instance
+        .collection('Followers')
+        .document(widget.profileId)
+        .collection('followRequests')
+        .document(currentUser.id)
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    Firestore.instance
+        .collection('Following')
+        .document(currentUser.id)
+        .collection('Requested')
+        .document(widget.profileId)
         .get()
         .then((doc) {
       if (doc.exists) {
@@ -356,7 +487,8 @@ class _ProfileState extends State<Profile> {
     getProfilePosts();
     getFollowers();
     getFollowing();
-    chechIfFollowing();
+    checkIfFollowing();
+    checkIfRequested();
   }
 
   void getFollowers() async {
@@ -377,7 +509,7 @@ class _ProfileState extends State<Profile> {
     followingCount = following.documents.length;
   }
 
-  void chechIfFollowing() async {
+  void checkIfFollowing() async {
     DocumentSnapshot doc = await Firestore.instance
         .collection('Followers')
         .document(widget.profileId)
@@ -395,6 +527,23 @@ class _ProfileState extends State<Profile> {
     }
   }
 
+  void checkIfRequested() async {
+    DocumentSnapshot doc = await Firestore.instance
+        .collection('Followers')
+        .document(widget.profileId)
+        .collection('followRequests')
+        .document(currentUser.id)
+        .get();
+    if (doc.exists) {
+      setState(() {
+        hasRequested = true;
+      });
+    } else {
+      setState(() {
+        hasRequested = false;
+      });
+    }
+  }
   void getProfilePosts() async {
     setState(() {
       isLoading = true;
