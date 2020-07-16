@@ -35,6 +35,7 @@ class _CallerPageState extends State<CallerPage> {
       callStreamSubscription=callMethods.callStream(uid: widget.currentUser.id).listen((DocumentSnapshot ds) {
         switch (ds.data){
           case null:
+            Navigator.pop(context);
             break;
           default:
             break;
@@ -54,19 +55,7 @@ class _CallerPageState extends State<CallerPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: Center(
-        child: Stack(
-          children: <Widget>[
-            _viewRows(),
-            //_panel(),
-            _toolbar(context),
-          ],
-        ),
-      ),
-    );verride
+  
   Widget build(BuildContext context) {
     return StreamBuilder(
       stream: Firestore.instance.collection('call').document(currentUser.id).snapshots(),
