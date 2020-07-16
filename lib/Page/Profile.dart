@@ -149,9 +149,7 @@ class _ProfileState extends State<Profile> {
                 child: Text("No data found"),
               );
             }
-            setState(() {
               isPrivate=snapshot.data.data['isPrivate']==null?false:snapshot.data.data['isPrivate'];
-            });
             return buildWidget();
           },
 
