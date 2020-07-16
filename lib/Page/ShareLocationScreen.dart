@@ -58,6 +58,7 @@ class _ShareLocationScreenState extends State<ShareLocationScreen> {
                   width: MediaQuery.of(context).size.width * 0.9,
                   height: 60,
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: <Widget>[
                       GestureDetector(
                         onTap: () {
@@ -72,11 +73,12 @@ class _ShareLocationScreenState extends State<ShareLocationScreen> {
                           ),
                         ),
                       ),
+                      SizedBox(width:10),
                       Container(
                           height: 50,
                           width: MediaQuery.of(context).size.width * 0.7,
                           child: Card(
-                              color: Colors.white.withOpacity(0.6),
+                              color: Colors.black.withOpacity(0.6),
                               elevation: 5,
                               child: Center(
                                   child: Text(
@@ -95,12 +97,11 @@ class _ShareLocationScreenState extends State<ShareLocationScreen> {
                 margin: EdgeInsets.all(10),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: Colors.white.withOpacity(0.6)),
+                    color: Colors.black.withOpacity(0.6)),
                 child: IconButton(
                     icon: Icon(
                       isLocated ? Icons.my_location : Icons.location_searching,
                       size: 30,
-                      color: Colors.blue,
                     ),
                     onPressed: () async {
                       Location location = new Location();
@@ -250,7 +251,7 @@ class _ShareLocationScreenState extends State<ShareLocationScreen> {
           padding: EdgeInsets.all(8),
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: Colors.white.withOpacity(0.6)),
+              color: Colors.black.withOpacity(0.6)),
           width: MediaQuery.of(context).size.width * 0.5,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -264,11 +265,9 @@ class _ShareLocationScreenState extends State<ShareLocationScreen> {
                       ))
                   : Icon(
                       Icons.send,
-                      color: Colors.blue,
                     ),
               Text(
                 "Share your location",
-                style: TextStyle(color: Colors.blue),
               )
             ],
           ),

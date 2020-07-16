@@ -138,21 +138,17 @@ class _EditProfileState extends State<EditProfile> {
             Navigator.pop(context);
           },
           icon: Icon(Icons.clear),
-          color: Colors.black,
         ),
         title: Text(
           "Edit your profile",
-          style: TextStyle(color: Colors.black),
         ),
         actions: <Widget>[
           IconButton(
             onPressed: updateProfileData,
             icon: Icon(Icons.check),
-            color: Colors.black,
           )
         ],
         centerTitle: true,
-        backgroundColor: Colors.white,
       ),
       body: isLoading
           ? Center(

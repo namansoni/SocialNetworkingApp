@@ -18,13 +18,10 @@ class _ActivityFeedState extends State<ActivityFeed> {
     return PickupLayout(
       currentUser: currentUser,
       scaffold: Scaffold(
-        backgroundColor: Colors.white,
         appBar: AppBar(
           centerTitle: true,
-          backgroundColor: Colors.white,
           title: Text(
             "Activity Feed",
-            style: TextStyle(color: Colors.black),
           ),
         ),
         body: buildActivityFeed(),
@@ -44,7 +41,6 @@ class _ActivityFeedState extends State<ActivityFeed> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Container(
-            color: Colors.white,
             child: Center(child: Container(
               height: 20,
               width: 20,

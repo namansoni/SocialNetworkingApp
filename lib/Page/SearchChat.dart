@@ -30,7 +30,6 @@ class _SearchChatState extends State<SearchChat> {
     return PickupLayout(
       currentUser: widget.currentUser,
      scaffold: Scaffold(
-      backgroundColor: colors.mainBackgroundColor,
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -39,7 +38,6 @@ class _SearchChatState extends State<SearchChat> {
           children: <Widget>[
             SafeArea(
               child: Container(
-                color: colors.mainBackgroundColor,
                 margin: EdgeInsets.only(top: 30),
                 width: MediaQuery.of(context).size.width,
                 height: 50,
@@ -47,11 +45,9 @@ class _SearchChatState extends State<SearchChat> {
                   children: <Widget>[
                     CircleAvatar(
                       radius: 30,
-                      backgroundColor: Colors.black.withOpacity(0.9),
                       child: IconButton(
                         icon: Icon(
                           Icons.arrow_back,
-                          color: Colors.grey,
                         ),
                         onPressed: () {
                           Navigator.of(context).pop();
@@ -63,7 +59,6 @@ class _SearchChatState extends State<SearchChat> {
                     ),
                     Container(
                         padding: EdgeInsets.only(bottom:5),
-                        color: colors.mainBackgroundColor,
                         height: 50,
                         width: MediaQuery.of(context).size.width * 0.8,
                         child: Card(
@@ -73,7 +68,6 @@ class _SearchChatState extends State<SearchChat> {
                               SizedBox(width: 10,),
                               Icon(
                                 Icons.search,
-                                color: Colors.grey,
                               ),
                               SizedBox(
                                 width: 10,
@@ -129,7 +123,6 @@ class _SearchChatState extends State<SearchChat> {
             followersDetails.add(singlefollowerDetails);
           });
           return Container(
-            color: colors.mainBackgroundColor,
             height: MediaQuery.of(context).size.height * 0.9,
             child: ListView.builder(
               shrinkWrap: true,
@@ -167,7 +160,6 @@ class _SearchChatState extends State<SearchChat> {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Container(
-              color: colors.mainBackgroundColor,
               margin: EdgeInsets.only(left: 50, top: 10),
               padding: EdgeInsets.all(3),
               child: Row(
@@ -200,7 +192,6 @@ class _SearchChatState extends State<SearchChat> {
             return Text("No Result Found",style: TextStyle(color: Colors.grey[500],fontSize: 18),);
           } else {
             return Container(
-              color: colors.mainBackgroundColor,
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height * 0.9,
               child: ListView.builder(

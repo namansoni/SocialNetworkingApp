@@ -109,58 +109,58 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
 
           ),
           onPressed: () {},
-          color: Colors.black
         ),
         centerTitle: true,
         title: Text(
           "InstaShare",
           style: TextStyle(
-              fontFamily: 'Signatra', fontSize: 35, color: Colors.black),
+              fontFamily: 'Signatra', fontSize: 35),
         ),
         actions: <Widget>[
-          CircleAvatar(
-            backgroundColor: Colors.white,
-            child: Stack(
-              children: <Widget>[
-                Transform.rotate(
-                    angle: -22 / 40,
-                    child: IconButton(
-                        icon: Icon(
-                          Icons.send,
-                          color: Colors.black,
-                          size: 30,
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => ChatPage(
-                                        currentUser: currentUser,
-                                        followersId: _followersId,
-                                        cameras:widget.cameras
-                                      )));
-                        })),
-              ],
-            ),
+          Stack(
+            children: <Widget>[
+              Transform.rotate(
+                  angle: -22 / 40,
+                  child: IconButton(
+                      icon: Icon(
+                        Icons.send,
+                        size: 30,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ChatPage(
+                                      currentUser: currentUser,
+                                      followersId: _followersId,
+                                      cameras:widget.cameras
+                                    )));
+                      })),
+            ],
           )
         ],
-        backgroundColor: Colors.white,
       ),
       body: RefreshIndicator(
-        backgroundColor: Colors.white,
           onRefresh: () => getUserTimeline(), child: buildTimeline()),
     ),);
   }
 
   buildTimeline() {
     if (posts == null) {
-      return CircularProgressIndicator();
+      return Center(
+        child: Padding(
+          padding: EdgeInsets.only(top: 30),
+          child: Container(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 1)),
+        ),
+      );
     }
     if (posts.isEmpty) {
       return ListView(
         children: <Widget>[
           Container(
-            color: colors.mainBackgroundColor,
             width: double.infinity,
             height: MediaQuery.of(context).size.height * 0.1,
             child: Padding(
@@ -172,7 +172,6 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
             ),
           ),
           Container(
-            color: colors.mainBackgroundColor,
               height: MediaQuery.of(context).size.height * 0.9,
               child: buildSuggestionforUser())
         ],
@@ -192,10 +191,16 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return CircularProgressIndicator();
+          return Center(child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircularProgressIndicator(),
+          ));
         }
         if (snapshot.hasError) {
-          return CircularProgressIndicator();
+          return Center(child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircularProgressIndicator(),
+          ));
         }
         return ListView.builder(
           itemCount: snapshot.data.documents.length,
@@ -222,7 +227,7 @@ class _TimelineState extends State<Timeline> with WidgetsBindingObserver {
                       text: TextSpan(
                         text: user.displayName,
                         style: TextStyle(
-                            color: Colors.black, fontWeight: FontWeight.bold),
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
                     subtitle: RichText(

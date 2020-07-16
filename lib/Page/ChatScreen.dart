@@ -107,11 +107,9 @@ class _ChatScreenState extends State<ChatScreen> {
       currentUser: widget.currentUser,
       scaffold: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white,
           leading: IconButton(
             icon: Icon(
               Icons.arrow_back,
-              color: Colors.black,
             ),
             onPressed: isRecording
                 ? null
@@ -136,7 +134,6 @@ class _ChatScreenState extends State<ChatScreen> {
             IconButton(
               icon: Icon(
                 Icons.videocam,
-                color: Colors.black,
               ),
               onPressed: () async{
                 print('making call');
@@ -150,14 +147,12 @@ class _ChatScreenState extends State<ChatScreen> {
             IconButton(
               icon: Icon(
                 Icons.info_outline,
-                color: Colors.black,
               ),
               onPressed: () {},
             ),
             PopupMenuButton(
               icon: Icon(
                 Icons.more_vert,
-                color: Colors.black,
               ),
               itemBuilder: (context) {
                 return choices.map((choice) {
@@ -192,7 +187,6 @@ class _ChatScreenState extends State<ChatScreen> {
     return Container(
       width: MediaQuery.of(context).size.width,
       height: MediaQuery.of(context).size.height * 0.87,
-      color: Colors.white,
       child: Column(
         children: <Widget>[
           ChatList(),
@@ -201,7 +195,6 @@ class _ChatScreenState extends State<ChatScreen> {
               : Container(
                   margin: EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                      color: Colors.grey[200],
                       border: Border.all(color: Colors.grey[200]),
                       borderRadius: BorderRadius.circular(30)),
                   child: Row(
@@ -223,7 +216,6 @@ class _ChatScreenState extends State<ChatScreen> {
                           icon: Icon(
                             Icons.photo_camera,
                             size: 35,
-                            color: Colors.black,
                           )),
                       SizedBox(
                         width: 10,
@@ -235,7 +227,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           focusNode: FocusNode(canRequestFocus: false),
                           maxLines: null,
                           textInputAction: TextInputAction.newline,
-                          style: TextStyle(color: Colors.black, fontSize: 18),
+                          style: TextStyle( fontSize: 18),
                           controller: messageController,
                           decoration: InputDecoration(
                               border: InputBorder.none,
@@ -253,13 +245,11 @@ class _ChatScreenState extends State<ChatScreen> {
                         },
                         child: Icon(
                           Icons.mic,
-                          color: Colors.grey[900],
                         ),
                       ),
                       IconButton(
                         icon: Icon(
                           Icons.insert_photo,
-                          color: Colors.grey[900],
                         ),
                         onPressed: () {
                           showDialog(
@@ -297,7 +287,6 @@ class _ChatScreenState extends State<ChatScreen> {
                       IconButton(
                         icon: Icon(
                           Icons.send,
-                          color: Colors.grey[900],
                         ),
                         onPressed: () {
                           sendMessage();
@@ -316,7 +305,6 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Container(
         height: MediaQuery.of(context).size.height - 148,
         width: MediaQuery.of(context).size.width,
-        color: Colors.white,
         child: StreamBuilder(
           stream: Firestore.instance
               .collection('chats')
@@ -354,7 +342,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 return snapshot.data.documents[index]['sender'] ==
                         widget.currentUser.id
                     ? Card(
-                        color: Color.fromRGBO(255, 250, 250, 1),
+                        color: Colors.black,
                         borderOnForeground: true,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(
@@ -385,11 +373,12 @@ class _ChatScreenState extends State<ChatScreen> {
                                         snapshot.data.documents[index]
                                             ['message'],
                                         style: TextStyle(
-                                            fontSize: 18, color: Colors.black),
+                                            fontSize: 18, color: Colors.white),
                                       )
                                     : snapshot.data.documents[index]['type'] ==
                                             "image"
                                         ? OpenContainer(
+                                          closedColor: Colors.black,
                                             transitionDuration:
                                                 Duration(milliseconds: 500),
                                             openBuilder: (context, action) =>
@@ -438,7 +427,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                   1000),
                                           format: 'D, M j, H:i'),
                                       style: TextStyle(
-                                          color: Colors.black.withOpacity(0.3)),
+                                          color: Colors.white.withOpacity(0.3)),
                                     ),
                                   ),
                                 )
@@ -451,7 +440,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         children: <Widget>[
                           Card(
                             elevation: 2,
-                            color: Colors.blue[100],
+                            color: Theme.of(context).cardColor,
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(8),
@@ -483,7 +472,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                                 ['message'],
                                             style: TextStyle(
                                                 fontSize: 18,
-                                                color: Colors.black),
+                                                color: Colors.white),
                                           )
                                         : snapshot.data.documents[index]
                                                     ['type'] ==
@@ -544,11 +533,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                                           1000),
                                               format: 'D, M j, H:i'),
                                           style: TextStyle(
-                                              color: Color.fromRGBO(
-                                                  95, 95, 95, 10)),
+                                              color: Colors.white30,
                                         ),
                                       ),
-                                    )
+                                    ))
                                   ],
                                 ),
                               ),
@@ -1030,12 +1018,12 @@ class _ChatScreenState extends State<ChatScreen> {
                   await audioPlayer[index]
                       .play(snapshot.data.documents[index]['url']);
                 }),
-        Stack(
+       Stack(
           alignment: Alignment.bottomRight,
           children: <Widget>[
             Slider(
-              activeColor: Colors.black,
-              inactiveColor: Colors.black12,
+              activeColor: Colors.white,
+              inactiveColor: Colors.white24,
               value: _position[index].inMicroseconds.toDouble(),
               min: 0.0,
               max: _duration[index].inMicroseconds.toDouble(),
@@ -1082,12 +1070,12 @@ class _ChatScreenState extends State<ChatScreen> {
               children: <Widget>[
                 snapshot.data.documents[index]['sender'] ==
                         widget.currentUser.id
-                    ? Text("You shared your location")
+                    ? Text("You shared your location",style: TextStyle(color:Colors.white),)
                     : Text(
-                        "${widget.selectedUser.displayName} shared his/her location."),
+                        "${widget.selectedUser.displayName} shared his/her location.",style: TextStyle(color: Colors.white),),
                 Text(
                   "Tap to View",
-                  style: TextStyle(color: Colors.grey[500]),
+                  style: TextStyle(color: Colors.grey[700]),
                 )
               ],
             ),

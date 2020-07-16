@@ -31,16 +31,14 @@ class _ChatpageState extends State<ChatPage> {
       currentUser: widget.currentUser,
       scaffold: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white,
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
+            icon: Icon(Icons.arrow_back,),
             onPressed: () {
               Navigator.of(context).pop();
             },
           ),
           title: Text(
             "Direct",
-            style: TextStyle(color: Colors.black),
           ),
         ),
         body: SingleChildScrollView(
@@ -74,11 +72,9 @@ class _ChatpageState extends State<ChatPage> {
           followersId: widget.followersId,
         ),
         closedBuilder: (context, action) => Container(
-            color: colors.mainBackgroundColor,
             height: 45,
             width: double.infinity,
             child: Card(
-              color: Colors.grey[500],
               elevation: 2,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
@@ -112,13 +108,15 @@ class _ChatpageState extends State<ChatPage> {
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return CircularProgressIndicator();
+          return Center(child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: CircularProgressIndicator(),
+          ));
         }
         if (snapshot.hasError) {
           return Text("Has Error");
         } else {
           return Container(
-            color: colors.mainBackgroundColor,
             height: MediaQuery.of(context).size.height * 0.75,
             child: ListView.builder(
               itemBuilder: (context, index) {

@@ -21,7 +21,6 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin<Sear
 
   AppBar buildSearchBar() {
     return AppBar(
-      backgroundColor: Colors.white,
       title: TextFormField(
         autofocus: false,
         controller: searchController,
@@ -47,7 +46,6 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin<Sear
 
   Container NoContentBody() {
     return Container(
-      color: colors.mainBackgroundColor,
       child: ListView(
         shrinkWrap: true,
         padding: EdgeInsets.all(10),
@@ -120,7 +118,6 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin<Sear
                   ListTile(
                     leading: CircleAvatar(
                       radius: 30,
-                      backgroundColor: Colors.grey,
                       backgroundImage:
                           CachedNetworkImageProvider(user.photoUrl),
                     ),
@@ -159,7 +156,6 @@ class _SearchState extends State<Search> with AutomaticKeepAliveClientMixin<Sear
     return PickupLayout(
       currentUser: currentUser,
      scaffold: Scaffold(
-      backgroundColor: colors.mainBackgroundColor,
       appBar: buildSearchBar(),
       body: searchedUsers == null ? NoContentBody() : BuildSearchResults(),
     ),

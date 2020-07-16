@@ -112,12 +112,16 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return isAuth ? PickupLayout(scaffold:AuthenticatedWidget(),currentUser: currentUser,) : UnauthenticatedWidget();
+    return isAuth
+        ? PickupLayout(
+            scaffold: AuthenticatedWidget(),
+            currentUser: currentUser,
+          )
+        : UnauthenticatedWidget();
   }
 
   Widget AuthenticatedWidget() {
     return Scaffold(
-      backgroundColor: colors.mainBackgroundColor,
       body: PageView(
         children: <Widget>[
           Timeline(currentuser: currentUser, cameras: widget.cameras),
@@ -136,9 +140,9 @@ class _HomeState extends State<Home> {
       ),
       bottomNavigationBar: CurvedNavigationBar(
         onTap: onTap,
-        color: Colors.grey[200],
-        buttonBackgroundColor: Colors.grey[300],
-        backgroundColor: Colors.white,
+        color: Colors.grey[900],
+        buttonBackgroundColor:Theme.of(context).primaryColor,
+        backgroundColor: Theme.of(context).canvasColor,
         height: 50,
         items: <Widget>[
           Icon(
@@ -239,12 +243,17 @@ class _HomeState extends State<Home> {
         'photoUrl': user.photoUrl,
         'username': username,
         'bio': "",
-        'timeStamp': DateTime.now()
+        'timeStamp': DateTime.now(),
+        'isPrivate': true
       });
     }
     doc = await usersRef.document(user.id).get();
     currentUser = UserModel.fromDocument(doc);
     print(currentUser.email);
+    Firestore.instance
+        .collection('chattingWith')
+        .document(currentUser.id)
+        .setData({"id": ""});
   }
 
   void onPageChanged(int pageIndex) {

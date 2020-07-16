@@ -105,7 +105,6 @@ class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Uplo
             ListTile(
               leading: Icon(
                 Icons.textsms,
-                color: Colors.blue,
                 size: 40,
               ),
               title: TextFormField(
@@ -118,7 +117,6 @@ class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Uplo
               leading: Icon(
                 Icons.location_on,
                 size: 40,
-                color: Colors.blue,
               ),
               title: TextFormField(
                 decoration: InputDecoration(labelText: "Location"),
@@ -129,7 +127,6 @@ class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Uplo
                 icon: isLocation
                     ? Icon(
                         Icons.my_location,
-                        color: Colors.blue,
                       )
                     : Icon(Icons.location_searching),
                 onPressed: () async {

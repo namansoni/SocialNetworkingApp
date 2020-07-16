@@ -123,9 +123,8 @@ class _ProfileState extends State<Profile> {
         title: Text(
           "Profile",
           style: TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
+              fontWeight: FontWeight.bold, fontSize: 20,),
         ),
-        backgroundColor: Colors.white,
       ),
       body: RefreshIndicator(
         onRefresh: () {
@@ -136,7 +135,6 @@ class _ProfileState extends State<Profile> {
           shrinkWrap: true,
           children: <Widget>[
             Container(
-                color: colors.mainBackgroundColor,
                 height: MediaQuery.of(context).size.height * 0.28,
                 width: MediaQuery.of(context).size.width,
                 child: buildProfileHeader()),
@@ -145,7 +143,6 @@ class _ProfileState extends State<Profile> {
               height: 2.0,
             ),
             Container(
-              color: colors.mainBackgroundColor,
               height: MediaQuery.of(context).size.height * 0.53,
               width: double.infinity,
               child: buildProfilePosts(),
@@ -415,7 +412,6 @@ class _ProfileState extends State<Profile> {
 
   buildTogglePostOrientation() {
     return Container(
-      color: colors.mainBackgroundColor,
       child: Column(
         children: <Widget>[
           Divider(
