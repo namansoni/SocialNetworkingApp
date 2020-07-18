@@ -96,7 +96,6 @@ class _PostState extends State<Post> {
   Widget build(BuildContext context) {
     isLiked = likes[currentuserId] == true;
     return Container(
-      color: Colors.white,
       child: Column(
         children: <Widget>[
           buildPostHeader(),
@@ -137,7 +136,6 @@ class _PostState extends State<Post> {
         UserModel postOwner = UserModel.fromDocument(snapshot.data);
         return Container(
           height: 62,
-          color: Colors.white,
           child: ListTile( 
             leading: CircleAvatar(
               backgroundImage: CachedNetworkImageProvider(postOwner.photoUrl),
@@ -158,7 +156,7 @@ class _PostState extends State<Post> {
                 child: Text(
                   postOwner.username,
                   style:
-                      TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                      TextStyle(fontWeight: FontWeight.bold),
                 )),
             subtitle: location != "" ? Text(location) : null,
             trailing: ownerId == currentUser.id
@@ -195,7 +193,6 @@ class _PostState extends State<Post> {
                     child: Icon(
                       Icons.favorite,
                       size: animatorState.value,
-                      color: Colors.white,
                     ),
                   ),
                 )
@@ -207,7 +204,6 @@ class _PostState extends State<Post> {
 
   buildPostFooter() {
     return Container(
-      color: Colors.white,
       child: Column(
         children: <Widget>[
           Row(
@@ -221,7 +217,6 @@ class _PostState extends State<Post> {
                 onPressed: handleLikePost,
               ),
               IconButton(
-                color: Colors.blue,
                 icon: Icon(
                   Icons.comment,
                   size: 28.0,

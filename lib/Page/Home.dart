@@ -23,6 +23,9 @@ import 'Search.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'Calling/pickup_layout.dart';
 
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
 class Home extends StatefulWidget {
   var cameras;
   Home({this.cameras});
@@ -43,8 +46,6 @@ class _HomeState extends State<Home> {
   bool isLoading = false;
 
   FirebaseMessaging firebaseMessaging = FirebaseMessaging();
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
   SharedPreferences sharedPreferences;
 
   @override
@@ -141,7 +142,7 @@ class _HomeState extends State<Home> {
       bottomNavigationBar: CurvedNavigationBar(
         onTap: onTap,
         color: Colors.grey[900],
-        buttonBackgroundColor:Theme.of(context).primaryColor,
+        buttonBackgroundColor: Theme.of(context).primaryColor,
         backgroundColor: Theme.of(context).canvasColor,
         height: 50,
         items: <Widget>[
@@ -190,7 +191,10 @@ class _HomeState extends State<Home> {
                 height: 50,
                 child: isLoading
                     ? Center(child: CircularProgressIndicator())
-                    : Image.asset('assets/images/google_signin_button.png'),
+                    : ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.asset(
+                            'assets/images/google_signin_button.png')),
               ),
             )
           ],
@@ -276,13 +280,30 @@ class _HomeState extends State<Home> {
         "androidNotificationToken": token,
       });
       firebaseMessaging.configure(
-        onLaunch: (Map<String, dynamic> message) async {},
-        onResume: (Map<String, dynamic> message) async {},
-        onMessage: (Map<String, dynamic> message) async {
-          showNotification(message);
-        },
-      );
+          onLaunch: (Map<String, dynamic> message) async {},
+          onResume: (Map<String, dynamic> message) async {},
+          onMessage: (Map<String, dynamic> message) async {
+            showNotification(message);
+          },
+          onBackgroundMessage:
+              Platform.isIOS ? null : myBackgroundMessageHandler);
     });
+  }
+
+  static Future<dynamic> myBackgroundMessageHandler(
+      Map<String, dynamic> message) {
+    if (message.containsKey('data')) {
+      // Handle data message
+      final dynamic data = message['data'];
+      print("ON BACKGROUND CALLED $data");
+    }
+
+    if (message.containsKey('notification')) {
+      // Handle notification message
+      final dynamic notification = message['notification'];
+      print("ON BACKGROUND CALLED $notification");
+    }
+    // Or do other work.
   }
 
   void getiosPermissions() {
@@ -296,34 +317,51 @@ class _HomeState extends State<Home> {
   void showNotification(Map<String, dynamic> message) async {
     print("Notification Shown");
     print(message);
-    List<String> lines = message['notification']['body'].toString().split('\n');
-    InboxStyleInformation inboxStyleInformation = InboxStyleInformation(
-      lines,
-    );
-    var android = new AndroidNotificationDetails(
-        'channel Id', 'channel Name', 'description',
-        importance: Importance.Max,
-        priority: Priority.High,
-        playSound: true,
-        styleInformation: inboxStyleInformation,
-        ticker: 'ticker',
-        enableLights: true);
-    var ios = new IOSNotificationDetails();
-    var platform = new NotificationDetails(android, ios);
-    Firestore.instance
-        .collection('chattingWith')
-        .document(currentUser.id)
-        .get()
-        .then((value) async {
-      if (value.data['id'] != message['data']['senderId']) {
-        await flutterLocalNotificationsPlugin.show(
-            int.parse(message['data']['senderId'].toString().substring(2, 5)),
-            message['notification']['title'] == "New Message"
-                ? "New Message"
-                : "Alert",
-            message['notification']['body'],
-            platform);
-      }
-    });
+    if (message['notification']['title'] == "New Message") {
+      List<String> lines =
+          message['notification']['body'].toString().split('\n');
+      InboxStyleInformation inboxStyleInformation = InboxStyleInformation(
+        lines,
+      );
+      var android = new AndroidNotificationDetails(
+          'channel Id', 'channel Name', 'description',
+          importance: Importance.Max,
+          priority: Priority.High,
+          playSound: true,
+          styleInformation: inboxStyleInformation,
+          ticker: 'ticker',
+          enableLights: true);
+      var ios = new IOSNotificationDetails();
+      var platform = new NotificationDetails(android, ios);
+      Firestore.instance
+          .collection('chattingWith')
+          .document(currentUser.id)
+          .get()
+          .then((value) async {
+        if (value.data['id'] != message['data']['senderId']) {
+          await flutterLocalNotificationsPlugin.show(
+              int.parse(message['data']['senderId'].toString().substring(2, 5)),
+              message['notification']['title'] == "New Message"
+                  ? "New Message"
+                  : "Alert",
+              message['notification']['body'],
+              platform);
+        }
+      });
+    } else if (message['notification']['title'] == "Alert") {
+      var android = AndroidNotificationDetails(
+        "channel ID",
+        "channel Name",
+        "descrption",
+        importance: Importance.High,
+      );
+      var ios = IOSNotificationDetails();
+      var platform = NotificationDetails(android, ios);
+      await flutterLocalNotificationsPlugin.show(
+          DateTime.now().millisecondsSinceEpoch.toSigned(5),
+          "Alert",
+          message['notification']['body'],
+          platform);
+    }
   }
 }

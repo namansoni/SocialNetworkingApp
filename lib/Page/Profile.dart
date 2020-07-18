@@ -27,9 +27,8 @@ class _ProfileState extends State<Profile> {
   String postOrientation = "grid";
   List<Post> posts = [];
   bool isFollowing = false;
-  bool hasRequested =false;
+  bool hasRequested = false;
   bool isPrivate = true;
-
 
   FutureBuilder buildProfileHeader() {
     return FutureBuilder(
@@ -42,7 +41,7 @@ class _ProfileState extends State<Profile> {
           return Text("No data found");
         } else {
           UserModel user = UserModel.fromDocument(snapshot.data);
-          isPrivate=user.isPrivate;
+          //isPrivate=user.isPrivate;
           return Container(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -59,7 +58,7 @@ class _ProfileState extends State<Profile> {
                           padding: const EdgeInsets.only(right: 50),
                           child: CircleAvatar(
                             backgroundImage:
-                            CachedNetworkImageProvider(user.photoUrl),
+                                CachedNetworkImageProvider(user.photoUrl),
                             radius: 40,
                           ),
                         ),
@@ -127,19 +126,24 @@ class _ProfileState extends State<Profile> {
         title: Text(
           "Profile",
           style: TextStyle(
-              fontWeight: FontWeight.bold, fontSize: 20,),
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
       ),
       body: RefreshIndicator(
-        onRefresh: (){
-          setState(() { });
-          return Future.value(false);},
+        onRefresh: () {
+          setState(() {});
+          return Future.value(false);
+        },
         child: StreamBuilder(
-          stream: Firestore.instance.collection('users').document(widget.profileId).snapshots(),
-          builder: (context,snapshot){
+          stream: Firestore.instance
+              .collection('users')
+              .document(widget.profileId)
+              .snapshots(),
+          builder: (context, snapshot) {
             if (!snapshot.hasData) {
-              return Card(
-                elevation: 6,
+              return Container(
                 child: Center(child: CircularProgressIndicator()),
               );
             }
@@ -148,18 +152,18 @@ class _ProfileState extends State<Profile> {
                 child: Text("No data found"),
               );
             }
-              isPrivate=snapshot.data.data['isPrivate']==null?false:snapshot.data.data['isPrivate'];
+            isPrivate = snapshot.data.data['isPrivate'] == null
+                ? false
+                : snapshot.data.data['isPrivate'];
             return buildWidget();
           },
-
         ),
       ),
     );
   }
 
-  Widget buildWidget()
-  {
-    if(isPrivate && !isFollowing && widget.profileId!=currentUser.id){
+  Widget buildWidget() {
+    if (isPrivate && !isFollowing && widget.profileId != currentUser.id) {
       return ListView(
         shrinkWrap: true,
         children: <Widget>[
@@ -171,30 +175,28 @@ class _ProfileState extends State<Profile> {
             height: 2.0,
           ),
           Container(
-            margin: EdgeInsets.fromLTRB(10.0,15.0,5.0,0.0),
-            height: MediaQuery
-                .of(context)
-                .size
-                .height * 0.10,
+            margin: EdgeInsets.fromLTRB(10.0, 15.0, 5.0, 0.0),
+            height: MediaQuery.of(context).size.height * 0.10,
             width: double.infinity,
             child: Row(
               children: <Widget>[
-                Icon(Icons.lock_outline,size: 50.0,),
-                SizedBox(width: 20.0,),
+                Icon(
+                  Icons.lock_outline,
+                  size: 50.0,
+                ),
+                SizedBox(
+                  width: 20.0,
+                ),
                 Column(
                   children: <Widget>[
                     Text(
                       'This Account is Private',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20.0
-                      ),
+                          fontWeight: FontWeight.bold, fontSize: 20.0),
                     ),
                     Text(
                       'Follow This Account to see their posts.',
-                      style: TextStyle(
-                          fontSize: 15.0
-                      ),
+                      style: TextStyle(fontSize: 15.0),
                     ),
                   ],
                 ),
@@ -206,25 +208,20 @@ class _ProfileState extends State<Profile> {
           ),
         ],
       );
-    }
-    else{
+    } else {
       return ListView(
         shrinkWrap: true,
         children: <Widget>[
           Container(
               height: MediaQuery.of(context).size.height * 0.28,
               width: MediaQuery.of(context).size.width,
-              child: buildProfileHeader()
-          ),
+              child: buildProfileHeader()),
           buildTogglePostOrientation(),
           Divider(
             height: 2.0,
           ),
           Container(
-            height: MediaQuery
-                .of(context)
-                .size
-                .height * 0.53,
+            height: MediaQuery.of(context).size.height * 0.53,
             width: double.infinity,
             child: buildProfilePosts(),
           ),
@@ -288,14 +285,21 @@ class _ProfileState extends State<Profile> {
         height: 30,
         decoration: BoxDecoration(
             border: Border.all(
-                color: isFollowing || hasRequested? Colors.grey : Colors.blueAccent),
-            color: isFollowing ?Colors.white : ( hasRequested?Colors.grey.shade200:Colors.blue),
+                color: isFollowing || hasRequested
+                    ? Colors.grey
+                    : Colors.blueAccent),
+            color: isFollowing
+                ? Colors.white
+                : (hasRequested ? Colors.grey.shade200 : Colors.blue),
             borderRadius: BorderRadius.all(Radius.circular(8))),
         child: Center(
             child: Text(
-              text,
-              style: TextStyle(color: isFollowing ? Colors.black : hasRequested?Colors.grey.shade700: Colors.white),
-            )),
+          text,
+          style: TextStyle(
+              color: isFollowing
+                  ? Colors.black
+                  : hasRequested ? Colors.grey.shade700 : Colors.white),
+        )),
       ),
     );
   }
@@ -305,8 +309,8 @@ class _ProfileState extends State<Profile> {
         context,
         MaterialPageRoute(
             builder: (ctx) => EditProfile(
-              currentUserId: currentUser.id,
-            )));
+                  currentUserId: currentUser.id,
+                )));
   }
 
   buildEditProfile() {
@@ -322,8 +326,7 @@ class _ProfileState extends State<Profile> {
   }
 
   void followaUser() {
-    if(!isPrivate)
-    {
+    if (!isPrivate) {
       setState(() {
         isFollowing = true;
         followersCount = followersCount + 1;
@@ -353,10 +356,9 @@ class _ProfileState extends State<Profile> {
         "userProfileImage": currentUser.photoUrl,
         "timestamp": DateTime.now()
       });
-    }
-    else{
+    } else {
       setState(() {
-        hasRequested=true;
+        hasRequested = true;
       });
       Firestore.instance
           .collection('Followers')
@@ -414,9 +416,20 @@ class _ProfileState extends State<Profile> {
     });
     Firestore.instance
         .collection('feed')
+        .document(currentUser.id)
+        .collection('feedItems')
+        .document(widget.profileId + "accepted")
+        .get()
+        .then((doc) {
+      if (doc.exists) {
+        doc.reference.delete();
+      }
+    });
+    Firestore.instance
+        .collection('feed')
         .document(widget.profileId)
         .collection('feedItems')
-        .document(currentUser.id)
+        .document(currentUser.id + "follow")
         .get()
         .then((doc) {
       if (doc.exists) {
@@ -424,10 +437,10 @@ class _ProfileState extends State<Profile> {
       }
     });
   }
-  requestedAction()
-  {
+
+  requestedAction() {
     setState(() {
-      hasRequested=false;
+      hasRequested = false;
     });
     Firestore.instance
         .collection('Followers')
@@ -464,8 +477,8 @@ class _ProfileState extends State<Profile> {
       List<Container> gridTiles = [];
       posts.forEach((post) {
         gridTiles.add(Container(
-          decoration: BoxDecoration(
-              border: Border.all(color: Colors.grey[200])),
+          decoration:
+              BoxDecoration(border: Border.all(color: Colors.grey[200])),
           child: GridTile(
             child: PostTile(post: post),
           ),
@@ -552,6 +565,7 @@ class _ProfileState extends State<Profile> {
       });
     }
   }
+
   void getProfilePosts() async {
     setState(() {
       isLoading = true;

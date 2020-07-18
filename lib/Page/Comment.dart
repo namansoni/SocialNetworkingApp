@@ -27,13 +27,12 @@ class _CommentState extends State<Comment> {
         appBar: AppBar(
           centerTitle: true,
           leading: IconButton(
-            icon: Icon(Icons.clear,color: Colors.black,),
+            icon: Icon(Icons.clear),
             onPressed: (){
               Navigator.of(context).pop();
             },
           ),
-          backgroundColor: Colors.white,
-          title: Text("Comments",style: TextStyle(color: Colors.black),),
+          title: Text("Comments",),
         ),
         body: Column(
           children: <Widget>[

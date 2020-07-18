@@ -1111,6 +1111,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Align(
               alignment: Alignment.center,
               child: OpenContainer(
+                closedColor: Theme.of(context).canvasColor,
                 closedShape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30)),
                 transitionDuration: Duration(milliseconds: 500),
@@ -1123,7 +1124,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Icon(
                     Icons.play_circle_filled,
                     size: 40,
-                    color: Colors.black54,
                   ),
                 ),
               ))

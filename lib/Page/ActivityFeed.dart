@@ -58,7 +58,6 @@ class _ActivityFeedState extends State<ActivityFeed> {
           itemBuilder: (context, index) {
             if(index==0){
               return Container(
-                margin: EdgeInsets.fromLTRB(20.0, 20.0, 20.0, 5.0),
                 child: GestureDetector(
                   onTap: (){
                     Navigator.push(
@@ -70,23 +69,14 @@ class _ActivityFeedState extends State<ActivityFeed> {
                   },
                   child: Container(
                     decoration: BoxDecoration(
-                      borderRadius: new BorderRadius.circular(20.0),
-                      color: Color(0xFF96ED89),
-                      boxShadow: [
-                        new BoxShadow(
-                            color: Color(0xF0737373),
-                            blurRadius: 3.0,
-                            offset: new Offset(1.0, 1.0)
-                        )
-                      ],
+                      borderRadius: new BorderRadius.circular(5.0),
+                      color: Theme.of(context).cardColor,
                     ),
                     child: ListTile(
                       title: RichText(
                         text: TextSpan(
                             text: "Follow Requests",
                             style: TextStyle(
-                              fontSize: 20.0,
-                              fontStyle: FontStyle.italic,
                               fontWeight: FontWeight.bold,
                             )
                         ),
@@ -125,7 +115,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
                             text: snapshot.data.documents[index-1]['username'],
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black)),
+                               )),
                         TextSpan(
                             text: snapshot.data.documents[index-1]['type'] ==
                                 "comment"
@@ -188,7 +178,7 @@ class _ActivityFeedState extends State<ActivityFeed> {
                   TextSpan(
                     text: snapshot.data.documents[index-1]['username'],
                     style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.black),
+                        fontWeight: FontWeight.bold),
                   ),
                   TextSpan(
                       text: snapshot.data.documents[index-1]['type'] ==

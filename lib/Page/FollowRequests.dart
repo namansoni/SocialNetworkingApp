@@ -18,24 +18,23 @@ class _FollowRequestsState extends State<FollowRequests> {
   Widget build(BuildContext context) {
     return PickupLayout(
       currentUser: currentUser,
-        scaffold: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Colors.white,
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: Colors.black),
-              onPressed: () {
-                Navigator.of(context).pop();
-                },
-            ),
-            title: Text(
-              "Follow Requests",
-              style: TextStyle(color: Colors.black),
-            ),
+      scaffold: Scaffold(
+        appBar: AppBar(
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
           ),
-          body: buildRequestList(),
+          title: Text(
+            "Follow Requests",
+          ),
         ),
+        body: buildRequestList(),
+      ),
     );
   }
+
   buildRequestList() {
     return StreamBuilder(
       stream: Firestore.instance
@@ -47,118 +46,93 @@ class _FollowRequestsState extends State<FollowRequests> {
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return Card(
-            child: Text("No Follow Requests"),
+          return Center(
+            child: Container(
+              child: CircularProgressIndicator(),
+            ),
           );
         }
         if (snapshot.hasError) {
-          return Card(
-            child: Text("No Follow Requests"),
+          return Center(
+            child: Container(
+              child: CircularProgressIndicator(),
+            ),
           );
         }
         return ListView.builder(
           itemCount: snapshot.data.documents.length,
           itemBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Center(
-                  child: Card(
-
-                    child: Row(
-                      children: <Widget>[
-                        GestureDetector(
-                          onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (ctx) => Profile(
-                                    profileId: snapshot.data.documents[index]
+            return ListTile(
+              leading: GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (ctx) => Profile(
+                                profileId: snapshot.data.documents[index]
                                     ['userId'],
-                                    currentUser: currentUser,
-                                  )));
-                        },
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CircleAvatar(
-                            backgroundImage: CachedNetworkImageProvider(
-                                snapshot.data.documents[index]['userProfileImage']),
-                        ),
-                          ),
-                      ),
-                        SizedBox(width:10.0),
-                        Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              RichText(
-                                overflow: TextOverflow.ellipsis,
-                                text: TextSpan(
-                                    text: snapshot.data.documents[index]['username'],
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      fontSize: 20.0
-                                    )
-                                ),
-                              ),
-                              SizedBox(
-                                height: 5.0,
-                              ),
-                              Text(timeago.format(
-                                  snapshot.data.documents[index]['timestamp'].toDate())
-                              ),
-                            ]
-                        ),
-                        SizedBox(
-                          width: 35.0,
-                        ),
-                        GestureDetector(
-
-                          child: Container(
-                            padding: EdgeInsets.all(5.0),
-                            child: RichText(
-                              text: TextSpan(
-                                text:"Confirm",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 17.0
-                                )
-                              ),
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: new BorderRadius.circular(10.0),
-                              border: Border.all()
-                            ),
-                          ),
-                          onTap: (){
-                            followUser(snapshot.data.documents[index]['userId']);
-                          },
-                        ),
-                        SizedBox(width: 15.0,),
-                        GestureDetector(
-                          onTap: (){deleteRequest(snapshot.data.documents[index]['userId']);},
-                          child: Container(
-                            padding: EdgeInsets.all(5.0),
-                            child: Icon(Icons.delete_outline,color: Colors.white,),
-                            decoration: BoxDecoration(
-                              borderRadius: new BorderRadius.circular(10.0),
-                              color: Colors.redAccent,
-                            ),
-                          ),
-                        )
-                      ],
-                    )
-                  ),
+                              )));
+                },
+                child: CircleAvatar(
+                  backgroundImage: CachedNetworkImageProvider(
+                      snapshot.data.documents[index]['userProfileImage']),
                 ),
-              );
+              ),
+              title: RichText(
+                overflow: TextOverflow.ellipsis,
+                text: TextSpan(
+                    text: snapshot.data.documents[index]['username'],
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    )),
+              ),
+              subtitle: Text(
+                timeago.format(
+                    snapshot.data.documents[index]['timestamp'].toDate()),
+                style: TextStyle(color: Colors.grey[500]),
+              ),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  GestureDetector(
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      child: RichText(
+                          textAlign: TextAlign.center,
+                          text: TextSpan(
+                            text: "Confirm",
+                          )),
+                      decoration: BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: new BorderRadius.circular(5),
+                      ),
+                    ),
+                    onTap: () {
+                      followUser(snapshot.data.documents[index]['userId']);
+                    },
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      deleteRequest(snapshot.data.documents[index]['userId']);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.only(left: 5),
+                      child: Icon(
+                        Icons.clear,
+                        size: 20,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            );
           },
         );
       },
     );
   }
-  followUser(String userId)
-  {
+
+  followUser(String userId) {
     deleteRequest(userId);
     Firestore.instance
         .collection('Followers')
@@ -176,7 +150,7 @@ class _FollowRequestsState extends State<FollowRequests> {
         .collection('feed')
         .document(userId)
         .collection('feedItems')
-        .document(currentUser.id)
+        .document(currentUser.id+"accepted")
         .setData({
       "type": "accepted",
       "ownerId": userId,
@@ -185,9 +159,24 @@ class _FollowRequestsState extends State<FollowRequests> {
       "userProfileImage": currentUser.photoUrl,
       "timestamp": DateTime.now()
     });
+    Firestore.instance.collection('users').document(userId).get().then((value) {
+      Firestore.instance
+          .collection('feed')
+          .document(currentUser.id)
+          .collection('feedItems')
+          .document(userId+"follow")
+          .setData({
+        "type": "follow",
+        "ownerId": currentUser.id,
+        "username": value['username'],
+        "userId": userId,
+        "userProfileImage": value['photoUrl'],
+        "timestamp": DateTime.now()
+      });
+    });
   }
-  deleteRequest(String userId)
-  {
+
+  deleteRequest(String userId) {
     Firestore.instance
         .collection('Followers')
         .document(currentUser.id)

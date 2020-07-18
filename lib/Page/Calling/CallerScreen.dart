@@ -70,7 +70,7 @@ class _CallerPageState extends State<CallerPage> {
               child: Stack(
                 children: <Widget>[
                   _viewRows(),
-                  _panel(),
+                  //_panel(),
                   _toolbar(context),
                 ],
               ),

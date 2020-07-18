@@ -65,6 +65,7 @@ class _ChatpageState extends State<ChatPage> {
     return Padding(
       padding: EdgeInsets.only(left: 20, top: 20, right: 20),
       child: OpenContainer(
+        closedColor: Theme.of(context).canvasColor,
         closedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
         transitionDuration: Duration(milliseconds: 500),
         openBuilder: (context, action) => SearchChat(

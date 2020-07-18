@@ -135,7 +135,10 @@ exports.onCreateActivityFeedItem = functions.firestore
                          body = `${activityFeedItem.username} liked your post.`
                          break;
                     case "follow":
-                         body = `${activityFeedItem.username} started following you..`
+                         body = `${activityFeedItem.username} started following you.`
+                         break;
+                    case "accepted":
+                         body = `${activityFeedItem.username} accepted your follow request.`
                          break;
                     default:
                          break;
@@ -146,7 +149,7 @@ exports.onCreateActivityFeedItem = functions.firestore
                          title: "Alert",
                     },
                     token: androidNotificationToken,
-                    data: { recepient: userId },
+                    data: { recepient: userId, senderId: activityFeedItem.userId },
                     android: {
                          notification: {
                               sound: 'default',
@@ -171,23 +174,23 @@ exports.onMessageSend = functions.firestore
           const chatId = context.params.chatId;
           const senderId = snapshot.data().sender;
           const receiverId = snapshot.data().receiver;
-          const senderRef=admin.firestore().doc(`users/${senderId}`);
+          const senderRef = admin.firestore().doc(`users/${senderId}`);
           const receiversRef = admin.firestore().doc(`users/${receiverId}`);
-          const senderDoc=await senderRef.get();
+          const senderDoc = await senderRef.get();
           const receiverDoc = await receiversRef.get();
           const receiversAndroidNotificationToken = receiverDoc.data().androidNotificationToken;
           const receiversDisplayName = receiverDoc.data().displayName;
-          const senderDisplayName=senderDoc.data().displayName;
+          const senderDisplayName = senderDoc.data().displayName;
           const receiverAllunreadChatsRef = admin.firestore().collection(`unreadChats/${receiverId}/unreadchats/${chatId}/${chatId}`);
-          const unreadChatsDocuments = await receiverAllunreadChatsRef.orderBy('timestamp','desc').limit(7).get();
-          let arrayOfMessages=[];
+          const unreadChatsDocuments = await receiverAllunreadChatsRef.orderBy('timestamp', 'desc').limit(7).get();
+          let arrayOfMessages = [];
           unreadChatsDocuments.forEach((doc) => {
                arrayOfMessages.push(doc.data().message);
           });
-          const reversedArayofMessages=arrayOfMessages.reverse();
-          let body="";
-          reversedArayofMessages.forEach((mes)=>{
-               body=body+"\n"+senderDisplayName+": "+mes;
+          const reversedArayofMessages = arrayOfMessages.reverse();
+          let body = "";
+          reversedArayofMessages.forEach((mes) => {
+               body = body + "\n" + senderDisplayName + ": " + mes;
           });
           if (context.params.userId != senderId) {
                sendNotification(receiversAndroidNotificationToken, body, chatId);
@@ -201,8 +204,9 @@ exports.onMessageSend = functions.firestore
                          title: "New Message",
 
                     },
-                    data:{
-                         'senderId':senderId
+
+                    data: {
+                         'senderId': senderId
                     },
 
                     token: receiversAndroidNotificationToken,
@@ -210,7 +214,7 @@ exports.onMessageSend = functions.firestore
                          notification: {
                               sound: 'default',
                               tag: chatId,
-                              color:"#4dd2ff"
+                              color: "#4dd2ff"
                          },
                          priority: 'high',
                          ttl: 0,
@@ -224,3 +228,117 @@ exports.onMessageSend = functions.firestore
                });
           }
      });
+
+exports.onCallCreated = functions.firestore.document('call/{userId}').onCreate(async (snapshot, context) => {
+     const userId = context.params.userId;
+     const caller_id = snapshot.data().caller_id;
+     if (userId != caller_id) {
+          const receiver_id = snapshot.data().receiver_id;
+          const receiversRef = admin.firestore().doc(`users/${receiver_id}`);
+          const receiversDoc = await receiversRef.get();
+          const callerName = snapshot.data().caller_name;
+          const androidNotificationToken = receiversDoc.data().androidNotificationToken;
+          const message = {
+               notification: {
+                    body: `${callerName} is video calling you on instashare..`,
+                    title: "Video Call",
+
+               },
+               token: androidNotificationToken,
+               android: {
+                    notification: {
+                         sound: 'default',
+                         tag: caller_id,
+                         color: "#4dd2ff",
+                         sticky: true,
+                         sound: "default",
+                         default_vibrate_timings: true,
+                         default_light_settings: true
+                    },
+                    priority: 'high',
+                    ttl: 0,
+                    collapseKey: caller_id
+               }
+          };
+          admin.messaging().send(message).then(result => {
+               console.log(`Message sent successfully ${result}`);
+          }).catch(error => {
+               console.log(error);
+          });
+     }
+
+});
+
+exports.onCallDeleted = functions.firestore.document('call/{userId}').onDelete(async (snapshot, context) => {
+     const userId = context.params.userId;
+     const caller_id = snapshot.data().caller_id;
+     if (userId != caller_id) {
+          const receiver_id = snapshot.data().receiver_id;
+          const receiversRef = admin.firestore().doc(`users/${receiver_id}`);
+          const receiversDoc = await receiversRef.get();
+          const callerName = snapshot.data().caller_name;
+          const androidNotificationToken = receiversDoc.data().androidNotificationToken;
+          const message = {
+               notification: {
+                    body: `Video call ended with ${callerName}`,
+                    title: "Video Call Ended",
+
+               },
+               token: androidNotificationToken,
+               android: {
+                    notification: {
+                         sound: 'default',
+                         tag: caller_id,
+                         color: "#4dd2ff",
+                         sticky: true,
+                         sound: "default",
+                         default_vibrate_timings: true,
+                         default_light_settings: true
+                    },
+                    priority: 'high',
+                    ttl: 0,
+                    collapseKey: caller_id
+               }
+          };
+          admin.messaging().send(message).then(result => {
+               console.log(`Message sent successfully ${result}`);
+          }).catch(error => {
+               console.log(error);
+          });
+     }
+
+});
+exports.onFollowRequestCreated = functions.firestore.document('Followers/{userId}/followRequests/{currentUserId}').onCreate(async (snapshot, context) => {
+     const receiver_id = context.params.userId;
+     const receiversRef = admin.firestore().doc(`users/${receiver_id}`);
+     const receiversDoc = await receiversRef.get();
+     const senderName=snapshot.data().username;
+     const androidNotificationToken = receiversDoc.data().androidNotificationToken;
+     const message = {
+          notification: {
+               body: `${senderName} requested to follow you..`,
+               title: "Follow Request",
+
+          },
+          token: androidNotificationToken,
+          android: {
+               notification: {
+                    sound: 'default',
+                    color: "#4dd2ff",
+                    sticky: true,
+                    sound: "default",
+                    default_vibrate_timings: true,
+                    default_light_settings: true
+               },
+               priority: 'high',
+               ttl: 0,
+          }
+     };
+     admin.messaging().send(message).then(result => {
+          console.log(`Message sent successfully ${result}`);
+     }).catch(error => {
+          console.log(error);
+     });
+
+
+});

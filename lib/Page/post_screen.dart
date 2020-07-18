@@ -22,37 +22,39 @@ class _PostScreenState extends State<PostScreen> {
       scaffold: Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          color: Colors.black,
           icon: Icon(Icons.clear),
           onPressed: (){
             Navigator.of(context).pop();
           },
         ),
-        backgroundColor: Colors.white,
-        title: Text("Post",style: TextStyle(color: Colors.black),),
+        title: Text("Post"),
         centerTitle: true,
       ),
-      body: FutureBuilder(
-        future: Firestore.instance.collection('posts').document(widget.userId).collection('UsersPost').document(widget.postId).get(),
-        builder: (context,snapshot){
-          if(!snapshot.hasData){
-            return CircularProgressIndicator();
-          }
-          if(snapshot.hasError){
-            return Container(
-              child: Icon(Icons.error),
+      body: SingleChildScrollView(
+              child: FutureBuilder(
+          future: Firestore.instance.collection('posts').document(widget.userId).collection('UsersPost').document(widget.postId).get(),
+          builder: (context,snapshot){
+            if(!snapshot.hasData){
+              return Container(
+                padding: EdgeInsets.all(30),
+                child: Center(child: CircularProgressIndicator()));
+            }
+            if(snapshot.hasError){
+              return Container(
+                child: Icon(Icons.error),
+              );
+            }
+            return Post(
+              postId: snapshot.data['postId'],
+              username: snapshot.data['username'],
+              ownerId: snapshot.data['ownerId'],
+              mediaUrl: snapshot.data['mediaUrl'],
+              location: snapshot.data['location'],
+              likes: snapshot.data['likes'],
+              description: snapshot.data['caption'],
             );
-          }
-          return Post(
-            postId: snapshot.data['postId'],
-            username: snapshot.data['username'],
-            ownerId: snapshot.data['ownerId'],
-            mediaUrl: snapshot.data['mediaUrl'],
-            location: snapshot.data['location'],
-            likes: snapshot.data['likes'],
-            description: snapshot.data['caption'],
-          );
-        },
+          },
+        ),
       ),
     ),);
   }

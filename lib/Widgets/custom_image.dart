@@ -11,7 +11,6 @@ Widget cachedNetworkimage(String mediaUrl) {
         child: Padding(
           padding: EdgeInsets.only(top: 30),
           child: Container(
-              color: Colors.black,
               width: 20,
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 1)),
@@ -23,7 +22,6 @@ Widget cachedNetworkimage(String mediaUrl) {
         child: Padding(
           padding: EdgeInsets.only(top: 30),
           child: Container(
-            color: Colors.black,
               width: 20,
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 1)),

@@ -17,7 +17,8 @@ class Upload extends StatefulWidget {
   _UploadState createState() => _UploadState();
 }
 
-class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Upload>{
+class _UploadState extends State<Upload>
+    with AutomaticKeepAliveClientMixin<Upload> {
   File imageFile = null;
   TextEditingController captionController = TextEditingController();
   TextEditingController locationController = TextEditingController();
@@ -27,42 +28,92 @@ class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Uplo
   @override
   Widget build(BuildContext context) {
     return PickupLayout(
-      currentUser: widget.currentUser,
-      scaffold: imageFile == null ? buildUploadImage() : buildUploadForm());
+        currentUser: widget.currentUser,
+        scaffold: imageFile == null ? buildUploadImage() : buildUploadForm());
   }
 
   Widget buildUploadImage() {
-    return Container(
-      child: ListView(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 50),
-            child: SvgPicture.asset('assets/images/upload.svg',
-                height: MediaQuery.of(context).size.height * 0.4,
-                width: double.infinity),
-          ),
-          GestureDetector(
-            onTap: () {
-              pickImage();
-            },
-            child: Center(
-              child: Container(
-                margin: EdgeInsets.only(top: 20),
-                padding:
-                    EdgeInsets.only(top: 10, left: 50, right: 50, bottom: 10),
-                child: Text(
-                  "Upload",
-                  style: TextStyle(color: Colors.white),
+    return Stack(
+      children: <Widget>[
+        Align(
+          alignment: Alignment.center,
+          child: Container(
+            margin: EdgeInsets.all(10),
+            height: 300,
+            width: 300,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(1000),
+                border: Border.all(color: Colors.white)),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).canvasColor,
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(color: Colors.white)),
+                    child: GestureDetector(
+                      onTap: (){
+                        pickImage(ImageSource.camera);
+                      },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(
+                            Icons.camera_alt,
+                            size: 50,
+                          ),
+                          Text("Camera")
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-                decoration: BoxDecoration(
-                    color: Colors.blueAccent,
-                    border: Border.all(color: Colors.blueAccent),
-                    borderRadius: BorderRadius.circular(20)),
-              ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).canvasColor,
+                        borderRadius: BorderRadius.circular(100),
+                        border: Border.all(color: Colors.white)),
+                    child: GestureDetector(
+                      onTap: (){
+                        pickImage(ImageSource.gallery);
+                      },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Icon(
+                            Icons.image,
+                            size: 50,
+                          ),
+                          Text("Gallery")
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          )
-        ],
-      ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.center,
+          child: Container(
+            child: SvgPicture.asset(
+              'assets/images/upload.svg',
+              width: 100,
+              height: 100,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -152,34 +203,34 @@ class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Uplo
 
   void createPostInfirestore(
       {String mediaUrl, String caption, String location}) {
-        print(caption);
+    print(caption);
     Firestore.instance
         .collection("posts")
         .document(widget.currentUser.id)
         .collection("UsersPost")
         .document(postId)
         .setData({
-          "postId":postId,
-          "ownerId":widget.currentUser.id,
-          "username":widget.currentUser.username,
-          "mediaUrl":mediaUrl,
-          "description":caption,
-          "location":location,
-          "timestamp":DateTime.now().millisecondsSinceEpoch.toString(),
-          "likes": {}
-        });
-        captionController.clear();
-        locationController.clear();
-        setState(() {
-          isUploading=false;
-          isLocation=false;
-          imageFile=null;
-          postId=DateTime.now().millisecondsSinceEpoch.toString();
-        });
+      "postId": postId,
+      "ownerId": widget.currentUser.id,
+      "username": widget.currentUser.username,
+      "mediaUrl": mediaUrl,
+      "description": caption,
+      "location": location,
+      "timestamp": DateTime.now().millisecondsSinceEpoch.toString(),
+      "likes": {}
+    });
+    captionController.clear();
+    locationController.clear();
+    setState(() {
+      isUploading = false;
+      isLocation = false;
+      imageFile = null;
+      postId = DateTime.now().millisecondsSinceEpoch.toString();
+    });
   }
 
   void upload() async {
-    captionController.text="";
+    captionController.text = "";
     setState(() {
       isUploading = true;
     });
@@ -205,60 +256,21 @@ class _UploadState extends State<Upload> with AutomaticKeepAliveClientMixin<Uplo
     });
   }
 
-  void pickImage() async {
-    ImageSource source;
-    showDialog(
-        context: context,
-        builder: (context) {
-          return Container(
-            child: AlertDialog(
-              title: Text("Choose Image from "),
-              content: Container(
-                width: 150,
-                height: 100,
-                child: ListView(
-                  shrinkWrap: true,
-                  children: <Widget>[
-                    ListTile(
-                      leading: Icon(
-                        Icons.camera,
-                        color: Colors.amber,
-                      ),
-                      title: Text("Camera"),
-                      onTap: () async {
-                        source = ImageSource.camera;
-                        Navigator.of(context).pop();
-                        File file = await ImagePicker.pickImage(
-                            source: ImageSource.camera,
-                            maxHeight: 675,
-                            maxWidth: 960);
-                        setState(() {
-                          imageFile = file;
-                        });
-                      },
-                    ),
-                    ListTile(
-                      leading: Icon(
-                        Icons.folder,
-                        color: Colors.amber,
-                      ),
-                      title: Text("Gallery"),
-                      onTap: () async {
-                        source = ImageSource.gallery;
-                        Navigator.of(context).pop();
-                        final file = await ImagePicker.pickImage(
-                            source: ImageSource.gallery);
-                        setState(() {
-                          imageFile = file;
-                        });
-                      },
-                    )
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
+  void pickImage(ImageSource source) async {
+    if (source == ImageSource.camera) {
+      source = ImageSource.camera;
+      File file = await ImagePicker.pickImage(
+          source: ImageSource.camera, maxHeight: 675, maxWidth: 960);
+      setState(() {
+        imageFile = file;
+      });
+    } else if (source == ImageSource.gallery) {
+      source = ImageSource.gallery;
+      final file = await ImagePicker.pickImage(source: ImageSource.gallery);
+      setState(() {
+        imageFile = file;
+      });
+    }
   }
 
   @override
